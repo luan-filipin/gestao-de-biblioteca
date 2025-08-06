@@ -7,7 +7,6 @@ import com.api.biblioteca.dto.CriarUsuarioDto;
 import com.api.biblioteca.dto.response.AtualizaUsuarioDto;
 import com.api.biblioteca.dto.response.UsuarioDto;
 import com.api.biblioteca.entity.Usuario;
-import com.api.biblioteca.exception.EmailInexistenteException;
 import com.api.biblioteca.mapper.CriarUsuarioMapper;
 import com.api.biblioteca.mapper.UsuarioMapper;
 import com.api.biblioteca.repository.UsuarioRepository;
@@ -25,26 +24,26 @@ public class UsuarioServiceImp implements UsuarioService{
 	private final UsuarioRepository usuarioRepository;
 	
 	@Override
-	public void criaUsuario(CriarUsuarioDto dto) {
+	public void criarUsuario(CriarUsuarioDto dto) {
 		usuarioValidador.validarEmailNaoCadastrado(dto.email());
 		usuarioRepository.save(criarUsuarioMapper.toEntity(dto));
 	}
 
 	@Override
-	public UsuarioDto procuraUsuarioPeloEmail(String email) {
-		Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(EmailInexistenteException::new);
+	public UsuarioDto buscarUsuarioPorEmail(String email) {
+		Usuario usuario = usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email);
 		return usuarioMapper.toDto(usuario);
 	}
 
 	@Override
 	public void deletaUsuarioPeloEmail(String email) {
-		Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(EmailInexistenteException::new);
+		Usuario usuario = usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email);
 		usuarioRepository.delete(usuario);		
 	}
 
 	@Override
 	public UsuarioDto atualizaUsuarioPeloEmail(String email, AtualizaUsuarioDto dto) {
-		Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(EmailInexistenteException::new);
+		Usuario usuario = usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email);
 		usuarioValidador.validaEmailDaUrlDiferenteDoCorpo(email, dto.email());
 		usuarioMapper.atualizaDto(dto, usuario);
 		Usuario usuarioSalvo = usuarioRepository.save(usuario);
