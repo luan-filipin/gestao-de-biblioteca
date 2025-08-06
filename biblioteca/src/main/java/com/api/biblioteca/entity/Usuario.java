@@ -1,6 +1,7 @@
 package com.api.biblioteca.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -9,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -21,16 +23,19 @@ public class Usuario {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(name = "nome", nullable = false)
+	@Column(nullable = false)
 	private String nome;
 	
-	@Column(name = "email", nullable = false)
+	@Column(nullable = false, unique = true)
 	private String email;
 	
 	@CreationTimestamp
 	@Column(name = "data_cadastro", nullable = false)
 	private LocalDateTime dataCadastro;
 	
-	@Column(name = "telefone", nullable = false)
+	@Column(nullable = false)
 	private String telefone;
+	
+	@OneToMany(mappedBy = "usuario")
+	private List<Emprestimo> emprestimos;
 }
