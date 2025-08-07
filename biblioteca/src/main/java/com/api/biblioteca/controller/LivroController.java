@@ -3,13 +3,16 @@ package com.api.biblioteca.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.api.biblioteca.dto.AtualizarLivroDto;
 import com.api.biblioteca.dto.CriarLivroDto;
 import com.api.biblioteca.dto.response.LivroDto;
 import com.api.biblioteca.service.LivroService;
@@ -33,8 +36,20 @@ public class LivroController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<LivroDto> buscaLivroPeloIsbn(@RequestParam @NotBlank(message = "O isbn é obrigatorio!") String isbn){
+	public ResponseEntity<LivroDto> buscarLivroPeloIsbn(@RequestParam @NotBlank(message = "O isbn é obrigatorio!") String isbn){
 		LivroDto livro = livroService.buscaLivroPeloIsbn(isbn);
+		return ResponseEntity.ok(livro);
+	}
+	
+	@DeleteMapping
+	public ResponseEntity<Void> deletarLivroPeloIsbn(@RequestParam @NotBlank(message = "O isbn é obrigatorio!") String isbn){
+		livroService.deletaLivroPeloIsbn(isbn);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+	
+	@PutMapping
+	public ResponseEntity<LivroDto> atualizaLivroPeloIsbn(@RequestParam @NotBlank(message = "O isbn é obrigatorio!") String isbn, @RequestBody @Valid AtualizarLivroDto dto){
+		LivroDto livro = livroService.atualizaLivroPeloIsBn(isbn, dto);
 		return ResponseEntity.ok(livro);
 	}
 }
