@@ -48,7 +48,7 @@ public class UsuarioController {
 	}
 	
 	@PutMapping
-	public ResponseEntity<UsuarioDto> atualizaPeloEmail(@RequestParam @Email(message = "Deve ser um endereço valido!") String email, @RequestBody AtualizaUsuarioDto dto){
+	public ResponseEntity<UsuarioDto> atualizaPeloEmail(@RequestParam @Email(message = "Deve ser um endereço valido!") String email, @RequestBody @Valid AtualizaUsuarioDto dto){
 		UsuarioDto usuarioAtualizado = usuarioService.atualizaUsuarioPeloEmail(email, dto);
 		return ResponseEntity.ok(usuarioAtualizado);
 	}
