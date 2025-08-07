@@ -1,6 +1,5 @@
 package com.api.biblioteca.service;
 
-
 import org.springframework.stereotype.Service;
 
 import com.api.biblioteca.dto.CriarUsuarioDto;
@@ -24,9 +23,10 @@ public class UsuarioServiceImp implements UsuarioService{
 	private final UsuarioRepository usuarioRepository;
 	
 	@Override
-	public void criarUsuario(CriarUsuarioDto dto) {
+	public UsuarioDto criarUsuario(CriarUsuarioDto dto) {
 		usuarioValidador.validarEmailNaoCadastrado(dto.email());
-		usuarioRepository.save(criarUsuarioMapper.toEntity(dto));
+		Usuario usuarioSalvo = usuarioRepository.save(criarUsuarioMapper.toEntity(dto));
+		return usuarioMapper.toDto(usuarioSalvo);
 	}
 
 	@Override

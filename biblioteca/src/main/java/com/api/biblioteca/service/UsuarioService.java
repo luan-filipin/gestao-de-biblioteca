@@ -6,7 +6,7 @@ import com.api.biblioteca.dto.response.UsuarioDto;
 
 public interface UsuarioService {
 
-	void criarUsuario(CriarUsuarioDto dto);
+	UsuarioDto criarUsuario(CriarUsuarioDto dto);
 	
 	UsuarioDto buscarUsuarioPorEmail(String email);
 	
