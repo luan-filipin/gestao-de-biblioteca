@@ -9,7 +9,7 @@ public record AtualizaUsuarioDto(
 		String nome, 
 		
 		@NotBlank(message = "O email é obrigatorio!")
-		@Email(message = "Email invalido!")
+		@Email(message = "Deve ser um endereço valido!")
 		String email, 
 		
 		@NotBlank(message = "O telefone é obrigatorio!") 
