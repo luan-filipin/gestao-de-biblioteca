@@ -11,8 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,22 +47,43 @@ class UsuarioServiceTest {
 	@DisplayName("POST - Deve criar um usuario com sucesso.")
 	@Test
 	void deveCriarUsuarioComSucesso() {
-		
-		CriarUsuarioDto dto = new CriarUsuarioDto("Luan Brito", "teste@teste.com", "(11) 91234-5678");
-		
-		Usuario entity = new Usuario();
-		entity.setNome(dto.nome());
-		entity.setEmail(dto.email());
-		entity.setTelefone(dto.telefone());
-		
-		when(criarUsuarioMapper.toEntity(dto)).thenReturn(entity);
-		
-		usuarioServiceImp.criarUsuario(dto);
-		
-		verify(usuarioValidador).validarEmailNaoCadastrado(dto.email());
-		verify(criarUsuarioMapper).toEntity(dto);
-		verify(usuarioRepository).save(entity);
+
+	    CriarUsuarioDto dto = new CriarUsuarioDto("Luan Brito", "teste@teste.com", "(11) 91234-5678");
+
+	    Usuario entity = new Usuario();
+	    entity.setId(1L); // ID simulado após persistência
+	    entity.setNome(dto.nome());
+	    entity.setEmail(dto.email());
+	    entity.setTelefone(dto.telefone());
+	    entity.setDataCadastro(LocalDateTime.of(2025, 8, 6, 12, 0)); // data simulada
+
+	    UsuarioDto usuarioDtoEsperado = new UsuarioDto(
+	        entity.getId(),
+	        entity.getNome(),
+	        entity.getEmail(),
+	        entity.getDataCadastro(),
+	        entity.getTelefone()
+	    );
+
+	    when(criarUsuarioMapper.toEntity(dto)).thenReturn(entity);
+	    when(usuarioRepository.save(entity)).thenReturn(entity); // simula o retorno do save
+	    when(usuarioMapper.toDto(entity)).thenReturn(usuarioDtoEsperado);
+
+	    UsuarioDto resultado = usuarioServiceImp.criarUsuario(dto);
+
+	    assertNotNull(resultado);
+	    assertEquals(usuarioDtoEsperado.id(), resultado.id());
+	    assertEquals(usuarioDtoEsperado.nome(), resultado.nome());
+	    assertEquals(usuarioDtoEsperado.email(), resultado.email());
+	    assertEquals(usuarioDtoEsperado.telefone(), resultado.telefone());
+	    assertEquals(usuarioDtoEsperado.dataCadastro(), resultado.dataCadastro());
+
+	    verify(usuarioValidador).validarEmailNaoCadastrado(dto.email());
+	    verify(criarUsuarioMapper).toEntity(dto);
+	    verify(usuarioRepository).save(entity);
+	    verify(usuarioMapper).toDto(entity);
 	}
+
 	
 	@DisplayName("POST - Deve lançar exception ao validar o email.")
 	@Test
@@ -86,62 +105,68 @@ class UsuarioServiceTest {
 		
 	}
 	
-	@DisplayName("GET - Deve pesquisa usuario pelo email com sucesso.")
+	@DisplayName("GET - Deve pesquisar usuario pelo email com sucesso.")
 	@Test
 	void devePesquisarUsuarioPeloEmailComSucesso() {
 		
 		String email = "teste@teste.com";
-		
 
 		Usuario usuario = new Usuario();
 		usuario.setId(1L);
 		usuario.setNome("Luan Brito");
 		usuario.setEmail(email);
-	    usuario.setTelefone("(11) 91234-5678");
-	    usuario.setDataCadastro(LocalDateTime.now());
-		
-	    UsuarioDto usuarioDtoEsperado = new UsuarioDto(
-	            usuario.getId(),
-	            usuario.getNome(),
-	            usuario.getEmail(),
-	            usuario.getDataCadastro(),
-	            usuario.getTelefone()
-	        );		
-	    
-		when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
+		usuario.setTelefone("(11) 91234-5678");
+		usuario.setDataCadastro(LocalDateTime.now());
+
+		UsuarioDto usuarioDtoEsperado = new UsuarioDto(
+		        usuario.getId(),
+		        usuario.getNome(),
+		        usuario.getEmail(),
+		        usuario.getDataCadastro(),
+		        usuario.getTelefone()
+		);		
+
+		// Mocks corretos
+		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenReturn(usuario);
 		when(usuarioMapper.toDto(usuario)).thenReturn(usuarioDtoEsperado);
-		
+
 		UsuarioDto resultado = usuarioServiceImp.buscarUsuarioPorEmail(email);
-		
+
+		// Verificações
 		assertNotNull(resultado);
 		assertEquals(usuarioDtoEsperado.id(), resultado.id());
 		assertEquals(usuarioDtoEsperado.nome(), resultado.nome());
 		assertEquals(usuarioDtoEsperado.email(), resultado.email());
 		assertEquals(usuarioDtoEsperado.telefone(), resultado.telefone());
 		assertEquals(usuarioDtoEsperado.dataCadastro(), resultado.dataCadastro());
-		
-		verify(usuarioRepository).findByEmail(email);
+
+		verify(usuarioValidador).buscarPorEmailOuLancarEmailInexistente(email);
 		verify(usuarioMapper).toDto(usuario);
 	}
+
 	
-	@DisplayName("GET - Deve lançar exception ao nao localizar o email.")
+	@DisplayName("GET - Deve lançar exceção ao não localizar o email")
 	@Test
 	void deveLancarExceptionAoNaoLocalizarOEmail() {
-		
-		String email = "teste@teste.com";
-		
-		when(usuarioRepository.findByEmail(email)).thenReturn(Optional.empty());
-		
-		EmailInexistenteException exception = assertThrows(EmailInexistenteException.class, () -> {
-			usuarioServiceImp.buscarUsuarioPorEmail(email);
-		});
-		
-		assertEquals("O email não existe!", exception.getMessage());
-		
-		verify(usuarioMapper, never()).toDto(any());
+	    String email = "inexistente@teste.com";
+
+	    // Mocka o comportamento do validador para lançar exceção
+	    when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email))
+	        .thenThrow(new EmailInexistenteException());
+
+	    // Verifica se a exceção é lançada corretamente
+	    EmailInexistenteException exception = assertThrows(EmailInexistenteException.class, () -> {
+	        usuarioServiceImp.buscarUsuarioPorEmail(email);
+	    });
+	    
+	    assertEquals("O email não existe!", exception.getMessage());
+
+	    // Verifica se o validador foi chamado
+	    verify(usuarioValidador).buscarPorEmailOuLancarEmailInexistente(email);
 	}
 
-	@DisplayName("Deve deletar o usuario pelo email com sucesso.")
+
+	@DisplayName("DELETE - Deve deletar o usuario pelo email com sucesso.")
 	@Test
 	void deveDeletarUsuarioPeloEmail() {
 		
@@ -154,20 +179,21 @@ class UsuarioServiceTest {
 	    usuario.setTelefone("(11) 91234-5678");
 	    usuario.setDataCadastro(LocalDateTime.now());
 	    
-	    when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
+		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenReturn(usuario);
 	    
 	    usuarioServiceImp.deletaUsuarioPeloEmail(email);
 	    
 	    verify(usuarioRepository).delete(usuario);
 	}
 	
-	@DisplayName("Deve lançar exceção ao tentar deletar um usuario com o email inexistente")
+	@DisplayName("DELETE - Deve lançar exceção ao tentar deletar um usuario com o email inexistente")
 	@Test
 	void deveLancarExceptionAoDeletarUsuarioComEmailInexistente() {
 		
 		String email = "teste@teste.com";
 		
-		when(usuarioRepository.findByEmail(email)).thenReturn(Optional.empty());
+	    when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email))
+        .thenThrow(new EmailInexistenteException());
 		
 		EmailInexistenteException exception = assertThrows(EmailInexistenteException.class, ()->{
 			usuarioServiceImp.deletaUsuarioPeloEmail(email);
@@ -178,58 +204,56 @@ class UsuarioServiceTest {
 		verify(usuarioRepository, never()).delete(any());
 	}
 	
-	@DisplayName("Deve atualizar um usuario pelo email com sucesso.")
+	@DisplayName("PUT - Deve atualizar um usuario pelo email com sucesso.")
 	@Test
 	void deveAtualizarUsuarioComSucesso() {
 		
+		// Arrange
 		String email = "teste@teste.com";
-		
 		AtualizaUsuarioDto dto = new AtualizaUsuarioDto("Luan Brito", "teste@teste.com", "(11) 91234-5678");
-		
+
 		Usuario usuarioExistente = new Usuario();
 		usuarioExistente.setId(1L);
 		usuarioExistente.setNome("Nome antigo");
 		usuarioExistente.setEmail(email);
 		usuarioExistente.setTelefone("(11) 91234-5678");
 		usuarioExistente.setDataCadastro(LocalDateTime.now());
-	    
-	    Usuario usuarioAtualizado = new Usuario();
-	    usuarioAtualizado.setId(1L);
-	    usuarioAtualizado.setNome(dto.nome());
-	    usuarioAtualizado.setEmail(dto.email());
-	    usuarioAtualizado.setTelefone(dto.telefone());
-	    usuarioAtualizado.setDataCadastro(usuarioExistente.getDataCadastro());
-		
-	    UsuarioDto dtoEsperado = new UsuarioDto(
-	            usuarioAtualizado.getId(),
-	            usuarioAtualizado.getNome(),
-	            usuarioAtualizado.getEmail(),
-	            usuarioAtualizado.getDataCadastro(),
-	            usuarioAtualizado.getTelefone()
-	        );
-	    
-	    when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuarioExistente));
-	    doNothing().when(usuarioMapper).atualizaDto(dto, usuarioExistente);
-	    when(usuarioRepository.save(usuarioExistente)).thenReturn(usuarioAtualizado);
-	    when(usuarioMapper.toDto(usuarioAtualizado)).thenReturn(dtoEsperado);
-	    
-	    UsuarioDto resultado = usuarioServiceImp.atualizaUsuarioPeloEmail(email, dto);
-	    
-	    assertNotNull(resultado);
-	    assertEquals(dtoEsperado.id(), resultado.id());
-	    assertEquals(dtoEsperado.nome(), resultado.nome());
-	    assertEquals(dtoEsperado.email(), resultado.email());
-	    assertEquals(dtoEsperado.telefone(), resultado.telefone());
-	    assertEquals(dtoEsperado.dataCadastro(), resultado.dataCadastro());
-	    
-	    verify(usuarioRepository).findByEmail(email);
-	    verify(usuarioValidador).validaEmailDaUrlDiferenteDoCorpo(email, dto.email());
-	    verify(usuarioMapper).atualizaDto(dto, usuarioExistente);
-	    verify(usuarioRepository).save(usuarioExistente);
-	    verify(usuarioMapper).toDto(usuarioAtualizado);
+
+		UsuarioDto dtoEsperado = new UsuarioDto(
+		        usuarioExistente.getId(),
+		        dto.nome(),
+		        dto.email(),
+		        usuarioExistente.getDataCadastro(),
+		        dto.telefone()
+		);
+
+		// Mock correto
+		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenReturn(usuarioExistente);
+		doNothing().when(usuarioMapper).atualizaDto(dto, usuarioExistente);
+		when(usuarioRepository.save(usuarioExistente)).thenReturn(usuarioExistente);
+		when(usuarioMapper.toDto(usuarioExistente)).thenReturn(dtoEsperado);
+
+		// Act
+		UsuarioDto resultado = usuarioServiceImp.atualizaUsuarioPeloEmail(email, dto);
+
+		// Assert
+		assertNotNull(resultado);
+		assertEquals(dtoEsperado.id(), resultado.id());
+		assertEquals(dtoEsperado.nome(), resultado.nome());
+		assertEquals(dtoEsperado.email(), resultado.email());
+		assertEquals(dtoEsperado.telefone(), resultado.telefone());
+		assertEquals(dtoEsperado.dataCadastro(), resultado.dataCadastro());
+
+		// Verify
+		verify(usuarioValidador).buscarPorEmailOuLancarEmailInexistente(email);
+		verify(usuarioValidador).validaEmailDaUrlDiferenteDoCorpo(email, dto.email());
+		verify(usuarioMapper).atualizaDto(dto, usuarioExistente);
+		verify(usuarioRepository).save(usuarioExistente);
+		verify(usuarioMapper).toDto(usuarioExistente);
+
 	}
 	
-	@DisplayName("Deve lançar exception quando o email da URL for diferente do email do corpo")
+	@DisplayName("PUT - Deve lançar exception quando o email da URL for diferente do email do corpo")
 	@Test
 	void deveLancarExceptionQuandoEmailDaUrlDiferenteDoCorpo() {
 
@@ -245,7 +269,7 @@ class UsuarioServiceTest {
 	    usuarioExistente.setTelefone("(11) 90000-0000");
 	    usuarioExistente.setDataCadastro(LocalDateTime.now());
 
-	    when(usuarioRepository.findByEmail(emailUrl)).thenReturn(Optional.of(usuarioExistente));
+		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(emailUrl)).thenReturn(usuarioExistente);
 	    doThrow(new EmailDiferenteDoCorpoException()).when(usuarioValidador)
 	        .validaEmailDaUrlDiferenteDoCorpo(emailUrl, emailCorpo);
 
@@ -256,7 +280,7 @@ class UsuarioServiceTest {
 
 	    assertEquals("O email no corpo da requisição não pode ser diferente do email da URL.", exception.getMessage());
 
-	    verify(usuarioRepository).findByEmail(emailUrl);
+	    verify(usuarioValidador).buscarPorEmailOuLancarEmailInexistente(emailUrl);
 	    verify(usuarioValidador).validaEmailDaUrlDiferenteDoCorpo(emailUrl, emailCorpo);
 	    verify(usuarioMapper, never()).atualizaDto(any(), any());
 	    verify(usuarioRepository, never()).save(any());
