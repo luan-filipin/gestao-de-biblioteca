@@ -16,6 +16,7 @@ import com.api.biblioteca.exception.EmailInexistenteException;
 import com.api.biblioteca.exception.EmailJaExisteException;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -56,6 +57,7 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
 	}
 	
+	//Esse handler é disparado quando a falha de validação em objetos do corpo da requisição
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErroRespostaDto> handlerMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpServletRequest request) {
 	    
@@ -74,4 +76,25 @@ public class GlobalExceptionHandler {
 	    
 	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resposta);
 	}
+	//Esse handler é disparado quando a falha de validação em parâmetros diretos da requisição
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ResponseEntity<ErroRespostaDto> handleConstraintViolationException(ConstraintViolationException ex, HttpServletRequest request) {
+
+	    List<ErroCampoDto> erros = ex.getConstraintViolations()
+	        .stream()
+	        .map(violation -> new ErroCampoDto(
+	            violation.getPropertyPath().toString(), 
+	            violation.getMessage()))
+	        .toList();
+
+	    ErroRespostaDto resposta = new ErroRespostaDto(
+	        "Campos inválidos",
+	        HttpStatus.BAD_REQUEST.value(),
+	        request.getRequestURI(),
+	        erros
+	    );
+
+	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resposta);
+	}
+
 }
