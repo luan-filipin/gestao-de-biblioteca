@@ -16,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.api.biblioteca.config.GlobalExceptionHandler;
+import com.api.biblioteca.config.GlobalExceptionUsuarioHandler;
 import com.api.biblioteca.dto.CriarUsuarioDto;
 import com.api.biblioteca.dto.response.AtualizaUsuarioDto;
 import com.api.biblioteca.dto.response.UsuarioDto;
@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(UsuarioController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import(GlobalExceptionHandler.class)
+@Import(GlobalExceptionUsuarioHandler.class)
 class UsuarioControllerTest {
 	
 	@Autowired
