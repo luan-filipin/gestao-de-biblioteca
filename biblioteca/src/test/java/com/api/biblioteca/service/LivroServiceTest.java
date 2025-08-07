@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.api.biblioteca.dto.CriarLivroDto;
 import com.api.biblioteca.dto.response.LivroDto;
 import com.api.biblioteca.entity.Livro;
+import com.api.biblioteca.exception.LivroInexistenteException;
 import com.api.biblioteca.exception.LivroJaExisteException;
 import com.api.biblioteca.mapper.CriarLivroMapper;
 import com.api.biblioteca.mapper.LivroMapper;
@@ -101,4 +102,54 @@ class LivroServiceTest {
 		
 	}
 	
+	@DisplayName("GET - Deve busca livro pelo isbn com sucesso.")
+	@Test
+	void deveBuscarLivroPeloIsbnComSucesso() {
+		
+		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
+		String isbn = "9780132350884";
+		
+		Livro entity = new Livro();
+		entity.setId(1L);
+		entity.setTitulo("Clean Code");
+		entity.setAutor("Robert C. Martin");
+		entity.setIsbn(isbn);
+		entity.setDataPublicacao(dataFixa);
+		entity.setCategoria("Programação");
+		
+		LivroDto dtoEsperado = new LivroDto(1L, "Clean Code", "Robert C. Martin", isbn, dataFixa, "Programação");
+		
+		when(livroValidador.buscaPorIsbnOuLancaException(isbn)).thenReturn(entity);
+		when(livroMapper.toDto(entity)).thenReturn(dtoEsperado);
+		
+		LivroDto resultado = livroServiceImp.buscaLivroPeloIsbn(isbn);
+		
+		assertNotNull(resultado);
+		assertEquals(dtoEsperado.id(), resultado.id());
+		assertEquals(dtoEsperado.titulo(), resultado.titulo());
+		assertEquals(dtoEsperado.autor(), resultado.autor());
+		assertEquals(dtoEsperado.isbn(), resultado.isbn());
+		assertEquals(dtoEsperado.categoria(), resultado.categoria());
+		
+		verify(livroValidador).buscaPorIsbnOuLancaException(isbn);
+		verify(livroMapper).toDto(entity);
+
+	}
+	
+	@DisplayName("GET - Deve lançar exception se o isbn nao for existente")
+	@Test
+	void deveLancarExceptionSeIsbnNaoForExistente() {
+		
+		String isbn = "invalido-isbn";
+		
+		doThrow(new LivroInexistenteException()).when(livroValidador).buscaPorIsbnOuLancaException(isbn);
+		
+		LivroInexistenteException exception = assertThrows(LivroInexistenteException.class, ()->{
+			livroServiceImp.buscaLivroPeloIsbn(isbn);
+		});
+		
+		assertEquals("O livro nao existe", exception.getMessage());
+		
+		verify(livroMapper, never()).toDto(any());
+	}
 }
