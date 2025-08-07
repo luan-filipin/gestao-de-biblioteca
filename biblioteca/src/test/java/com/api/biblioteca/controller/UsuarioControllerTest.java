@@ -1,7 +1,6 @@
 package com.api.biblioteca.controller;
 
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -20,7 +19,6 @@ import com.api.biblioteca.config.GlobalExceptionUsuarioHandler;
 import com.api.biblioteca.dto.CriarUsuarioDto;
 import com.api.biblioteca.dto.response.AtualizaUsuarioDto;
 import com.api.biblioteca.dto.response.UsuarioDto;
-import com.api.biblioteca.exception.EmailInexistenteException;
 import com.api.biblioteca.service.UsuarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -102,7 +100,7 @@ class UsuarioControllerTest {
 
 		mockMvc.perform(get("/api/usuarios")
 				.param("email", email)
-				.accept(MediaType.APPLICATION_JSON))
+				.contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk())
 		.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 		.andExpect(jsonPath("$.id").value(entitySalvo.id()))
@@ -120,7 +118,7 @@ class UsuarioControllerTest {
 		
 		mockMvc.perform(get("/api/usuarios")
 				.param("email", email)
-				.accept(MediaType.APPLICATION_JSON))
+				.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.status").value(400))
 			.andExpect(jsonPath("$.mensagem").value("Campos inválidos"))
@@ -140,7 +138,7 @@ class UsuarioControllerTest {
 		
 		mockMvc.perform(delete("/api/usuarios")
 				.param("email", email)
-				.accept(MediaType.APPLICATION_JSON))
+				.contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().isNoContent());
 	}
 	
@@ -152,7 +150,7 @@ class UsuarioControllerTest {
 		
 		mockMvc.perform(delete("/api/usuarios")
 				.param("email", email)
-				.accept(MediaType.APPLICATION_JSON))
+				.contentType(MediaType.APPLICATION_JSON))
 		.andExpect(status().isBadRequest())
 		.andExpect(jsonPath("$.status").value(400))
 		.andExpect(jsonPath("$.mensagem").value("Campos inválidos"))
@@ -179,7 +177,6 @@ class UsuarioControllerTest {
 		mockMvc.perform(put("/api/usuarios")
 				.param("email", email)
 				.contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(usuarioEntrada)))
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.id").value(1))
@@ -200,14 +197,13 @@ class UsuarioControllerTest {
 		mockMvc.perform(put("/api/usuarios")
 				.param("email", email)
 				.contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(usuarioEntrada)))
 		.andExpect(status().isBadRequest())
 		.andExpect(jsonPath("$.status").value(400))
 		.andExpect(jsonPath("$.mensagem").value("Campos inválidos"))
 		.andExpect(jsonPath("$.path").value("/api/usuarios"))
 		.andExpect(jsonPath("$.timestamp").exists())
-		.andExpect(jsonPath("$.erros[0].campo").value("atualizaPeloEmail.email"))
+		.andExpect(jsonPath("$.erros[0].campo").value("email"))
 		.andExpect(jsonPath("$.erros[0].mensagem").value("Deve ser um endereço valido!"));
 	}
 }
