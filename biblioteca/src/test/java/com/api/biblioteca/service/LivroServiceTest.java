@@ -19,9 +19,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.api.biblioteca.dto.AtualizarLivroDto;
 import com.api.biblioteca.dto.CriarLivroDto;
 import com.api.biblioteca.dto.response.LivroDto;
 import com.api.biblioteca.entity.Livro;
+import com.api.biblioteca.exception.IsbnDiferenteDoCorpoException;
 import com.api.biblioteca.exception.IsbnInexistenteException;
 import com.api.biblioteca.exception.IsbnJaExisteException;
 import com.api.biblioteca.mapper.CriarLivroMapper;
@@ -193,5 +195,93 @@ class LivroServiceTest {
 		
 		verify(livroRepository, never()).delete(any());
 	}
+	
+	@DisplayName("PUT - Deve atualizar o livro pelo isbn com sucesso.")
+	@Test
+	void deveAtualizarLivroPeloIsbnComSucesso() {
+		
+		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
+		String isbn = "9780132350884";
+		
+		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação", dataFixa);
+		
+		Livro entity = new Livro();
+		entity.setId(1L);
+		entity.setTitulo("Clean Code");
+		entity.setAutor("Robert C. Martin");
+		entity.setIsbn(isbn);
+		entity.setDataPublicacao(dataFixa);
+		entity.setCategoria("Programação");
+		
+		LivroDto dtoEsperado = new LivroDto(1L, "Clean Code", "Robert C. Martin", isbn, dataFixa, "Programação");
+		
+		
+		when(livroValidador.buscaPorIsbnOuLancaException(isbn)).thenReturn(entity);
+		doNothing().when(livroValidador).validaIsbnDaUrlDiferenteDoCorpo(isbn, dtoEntrada.isbn());
+		doNothing().when(livroMapper).atualizaDto(dtoEntrada, entity);
+		when(livroRepository.save(entity)).thenReturn(entity);
+		when(livroMapper.toDto(entity)).thenReturn(dtoEsperado);
+		
+		LivroDto resultado = livroServiceImp.atualizaLivroPeloIsBn(isbn, dtoEntrada);
+		
+		assertNotNull(resultado);
+		assertEquals(dtoEsperado.id(), resultado.id());
+		assertEquals(dtoEsperado.titulo(), resultado.titulo());
+		assertEquals(dtoEsperado.autor(), resultado.autor());
+		assertEquals(dtoEsperado.isbn(), resultado.isbn());
+		assertEquals(dtoEsperado.categoria(), resultado.categoria());
+		
+		verify(livroValidador).buscaPorIsbnOuLancaException(isbn);
+		verify(livroValidador).validaIsbnDaUrlDiferenteDoCorpo(isbn, dtoEntrada.isbn());
+		verify(livroMapper).atualizaDto(dtoEntrada, entity);
+		verify(livroRepository).save(entity);
+		verify(livroMapper).toDto(entity);
+	}
+	
+	@DisplayName("PUT - Deve lançar exception se o isbn nao existir")
+	@Test
+	void deveLancarExceptionSeOIsbnNaoExistir() {
+		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
+		String isbn = "9780132350884";
+		
+		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação", dataFixa);
+
+		doThrow(new IsbnInexistenteException()).when(livroValidador).buscaPorIsbnOuLancaException(isbn);
+		
+		IsbnInexistenteException exception = assertThrows(IsbnInexistenteException.class, ()->{
+			livroServiceImp.atualizaLivroPeloIsBn(isbn, dtoEntrada);
+		});
+		
+		assertEquals("O livro nao existe", exception.getMessage());
+		
+		verify(livroValidador, never()).validaIsbnDaUrlDiferenteDoCorpo(any(), any());
+		verify(livroMapper, never()).atualizaDto(any(), any());
+		verify(livroRepository, never()).save(any());
+		verify(livroMapper, never()).toDto(any());
+		
+	}
+	
+	@DisplayName("PUT - Deve lançar exception se o isbnda url for diferente do corpo.")
+	@Test
+	void deveLancarExceptionSeAIsbnUrlDiferenteDoCorpo() {
+		
+		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
+		String isbn = "9780132350884";
+		
+		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("Clean Code", "Robert C. Martin", "1234567891012", "Programação", dataFixa);
+		
+		doThrow(new IsbnDiferenteDoCorpoException()).when(livroValidador).validaIsbnDaUrlDiferenteDoCorpo(isbn, dtoEntrada.isbn());
+		
+		IsbnDiferenteDoCorpoException exception = assertThrows(IsbnDiferenteDoCorpoException.class, ()->{
+			livroServiceImp.atualizaLivroPeloIsBn(isbn, dtoEntrada);
+		});
+		
+		assertEquals("O isbn no corpo da requisição não pode ser diferente do isbn da URL.", exception.getMessage());
+		
+		verify(livroMapper, never()).atualizaDto(any(), any());
+		verify(livroRepository, never()).save(any());
+		verify(livroMapper, never()).toDto(any());		
+	}
+	
 	
 }
