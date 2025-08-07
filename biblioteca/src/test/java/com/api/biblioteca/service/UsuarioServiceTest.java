@@ -51,7 +51,7 @@ class UsuarioServiceTest {
 	    CriarUsuarioDto dto = new CriarUsuarioDto("Luan Brito", "teste@teste.com", "(11) 91234-5678");
 
 	    Usuario entity = new Usuario();
-	    entity.setId(1L); // ID simulado após persistência
+	    entity.setId(1L); 
 	    entity.setNome(dto.nome());
 	    entity.setEmail(dto.email());
 	    entity.setTelefone(dto.telefone());
@@ -126,13 +126,11 @@ class UsuarioServiceTest {
 		        usuario.getTelefone()
 		);		
 
-		// Mocks corretos
 		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenReturn(usuario);
 		when(usuarioMapper.toUsuarioDto(usuario)).thenReturn(usuarioDtoEsperado);
 
 		UsuarioDto resultado = usuarioServiceImp.buscarUsuarioPorEmail(email);
 
-		// Verificações
 		assertNotNull(resultado);
 		assertEquals(usuarioDtoEsperado.id(), resultado.id());
 		assertEquals(usuarioDtoEsperado.nome(), resultado.nome());
@@ -150,18 +148,15 @@ class UsuarioServiceTest {
 	void deveLancarExceptionAoNaoLocalizarOEmail() {
 	    String email = "inexistente@teste.com";
 
-	    // Mocka o comportamento do validador para lançar exceção
 	    when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email))
 	        .thenThrow(new EmailInexistenteException());
 
-	    // Verifica se a exceção é lançada corretamente
 	    EmailInexistenteException exception = assertThrows(EmailInexistenteException.class, () -> {
 	        usuarioServiceImp.buscarUsuarioPorEmail(email);
 	    });
 	    
 	    assertEquals("O email não existe!", exception.getMessage());
 
-	    // Verifica se o validador foi chamado
 	    verify(usuarioValidador).buscarPorEmailOuLancarEmailInexistente(email);
 	}
 
@@ -208,7 +203,6 @@ class UsuarioServiceTest {
 	@Test
 	void deveAtualizarUsuarioComSucesso() {
 		
-		// Arrange
 		String email = "teste@teste.com";
 		AtualizaUsuarioDto dto = new AtualizaUsuarioDto("Luan Brito", "teste@teste.com", "(11) 91234-5678");
 
@@ -227,16 +221,14 @@ class UsuarioServiceTest {
 		        dto.telefone()
 		);
 
-		// Mock correto
 		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenReturn(usuarioExistente);
+		doNothing().when(usuarioValidador).validaEmailDaUrlDiferenteDoCorpo(email, dto.email());
 		doNothing().when(usuarioMapper).atualizaDto(dto, usuarioExistente);
 		when(usuarioRepository.save(usuarioExistente)).thenReturn(usuarioExistente);
 		when(usuarioMapper.toUsuarioDto(usuarioExistente)).thenReturn(dtoEsperado);
 
-		// Act
 		UsuarioDto resultado = usuarioServiceImp.atualizaUsuarioPeloEmail(email, dto);
 
-		// Assert
 		assertNotNull(resultado);
 		assertEquals(dtoEsperado.id(), resultado.id());
 		assertEquals(dtoEsperado.nome(), resultado.nome());
@@ -244,7 +236,6 @@ class UsuarioServiceTest {
 		assertEquals(dtoEsperado.telefone(), resultado.telefone());
 		assertEquals(dtoEsperado.dataCadastro(), resultado.dataCadastro());
 
-		// Verify
 		verify(usuarioValidador).buscarPorEmailOuLancarEmailInexistente(email);
 		verify(usuarioValidador).validaEmailDaUrlDiferenteDoCorpo(email, dto.email());
 		verify(usuarioMapper).atualizaDto(dto, usuarioExistente);
