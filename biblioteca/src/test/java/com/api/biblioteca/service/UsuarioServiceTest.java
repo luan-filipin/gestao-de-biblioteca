@@ -59,7 +59,7 @@ class UsuarioServiceTest {
 		
 		when(criarUsuarioMapper.toEntity(dto)).thenReturn(entity);
 		
-		usuarioServiceImp.criaUsuario(dto);
+		usuarioServiceImp.criarUsuario(dto);
 		
 		verify(usuarioValidador).validarEmailNaoCadastrado(dto.email());
 		verify(criarUsuarioMapper).toEntity(dto);
@@ -76,7 +76,7 @@ class UsuarioServiceTest {
 		doThrow(new EmailJaExisteException()).when(usuarioValidador).validarEmailNaoCadastrado(dto.email());
 		
 		EmailJaExisteException exception = assertThrows(EmailJaExisteException.class, () -> {
-			usuarioServiceImp.criaUsuario(dto);
+			usuarioServiceImp.criarUsuario(dto);
 		});
 		
 		assertEquals("O email ja existe!", exception.getMessage());
@@ -111,7 +111,7 @@ class UsuarioServiceTest {
 		when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
 		when(usuarioMapper.toDto(usuario)).thenReturn(usuarioDtoEsperado);
 		
-		UsuarioDto resultado = usuarioServiceImp.procuraUsuarioPeloEmail(email);
+		UsuarioDto resultado = usuarioServiceImp.buscarUsuarioPorEmail(email);
 		
 		assertNotNull(resultado);
 		assertEquals(usuarioDtoEsperado.id(), resultado.id());
@@ -133,7 +133,7 @@ class UsuarioServiceTest {
 		when(usuarioRepository.findByEmail(email)).thenReturn(Optional.empty());
 		
 		EmailInexistenteException exception = assertThrows(EmailInexistenteException.class, () -> {
-			usuarioServiceImp.procuraUsuarioPeloEmail(email);
+			usuarioServiceImp.buscarUsuarioPorEmail(email);
 		});
 		
 		assertEquals("O email não existe!", exception.getMessage());
