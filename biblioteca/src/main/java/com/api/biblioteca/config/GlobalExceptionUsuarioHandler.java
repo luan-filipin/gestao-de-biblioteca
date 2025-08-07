@@ -19,10 +19,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionUsuarioHandler {
 
 	@ExceptionHandler(RuntimeException.class)
-	public ResponseEntity<ErroRespostaDto> handlerGeneric(RuntimeException ex, HttpServletRequest request){
+	public ResponseEntity<ErroRespostaDto> handlerGenerico(RuntimeException ex, HttpServletRequest request){
 		ErroRespostaDto erro = new ErroRespostaDto(
 				ex.getMessage(), 
 				HttpStatus.INTERNAL_SERVER_ERROR.value(), 
