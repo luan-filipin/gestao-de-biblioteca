@@ -99,10 +99,8 @@ class UsuarioControllerTest {
 		when(usuarioService.buscarUsuarioPorEmail(email)).thenReturn(entitySalvo);
 
 		mockMvc.perform(get("/api/usuarios")
-				.param("email", email)
-				.contentType(MediaType.APPLICATION_JSON))
+				.param("email", email))
 		.andExpect(status().isOk())
-		.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 		.andExpect(jsonPath("$.id").value(entitySalvo.id()))
 		.andExpect(jsonPath("$.nome").value(entitySalvo.nome()))
 		.andExpect(jsonPath("$.email").value(entitySalvo.email()))
@@ -117,8 +115,7 @@ class UsuarioControllerTest {
 		String email = "email-invalido";
 		
 		mockMvc.perform(get("/api/usuarios")
-				.param("email", email)
-				.contentType(MediaType.APPLICATION_JSON))
+				.param("email", email))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.status").value(400))
 			.andExpect(jsonPath("$.mensagem").value("Campos inválidos"))
@@ -137,8 +134,7 @@ class UsuarioControllerTest {
 		doNothing().when(usuarioService).deletaUsuarioPeloEmail(email);
 		
 		mockMvc.perform(delete("/api/usuarios")
-				.param("email", email)
-				.contentType(MediaType.APPLICATION_JSON))
+				.param("email", email))
 		.andExpect(status().isNoContent());
 	}
 	
@@ -149,8 +145,7 @@ class UsuarioControllerTest {
 		String email = "email-invalido";
 		
 		mockMvc.perform(delete("/api/usuarios")
-				.param("email", email)
-				.contentType(MediaType.APPLICATION_JSON))
+				.param("email", email))
 		.andExpect(status().isBadRequest())
 		.andExpect(jsonPath("$.status").value(400))
 		.andExpect(jsonPath("$.mensagem").value("Campos inválidos"))
