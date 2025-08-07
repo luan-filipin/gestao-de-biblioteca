@@ -7,5 +7,5 @@ public interface LivroService {
 	
 	LivroDto criarLivro(CriarLivroDto dto);
 
-	
+	LivroDto buscaLivroPeloIsbn(String isbn);
 }

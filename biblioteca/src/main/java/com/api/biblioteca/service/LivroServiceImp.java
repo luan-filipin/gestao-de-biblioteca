@@ -28,6 +28,12 @@ public class LivroServiceImp implements LivroService{
 		return livroMapper.toDto(livroSalvo);
 	}
 
+	@Override
+	public LivroDto buscaLivroPeloIsbn(String isbn) {
+		Livro livro = livroValidador.buscaPorIsbnOuLancaException(isbn);
+		return livroMapper.toDto(livro);
+	}
+
 
 	
 	

@@ -2,6 +2,8 @@ package com.api.biblioteca.service.validador;
 
 import org.springframework.stereotype.Component;
 
+import com.api.biblioteca.entity.Livro;
+import com.api.biblioteca.exception.LivroInexistenteException;
 import com.api.biblioteca.exception.LivroJaExisteException;
 import com.api.biblioteca.repository.LivroRepository;
 
@@ -19,4 +21,7 @@ public class LivroValidador {
 		}
 	}
 	
+	public Livro buscaPorIsbnOuLancaException(String isbn) {
+		return livroRepository.findByIsbn(isbn).orElseThrow(LivroInexistenteException::new);
+	}
 }
