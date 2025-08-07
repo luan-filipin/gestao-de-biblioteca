@@ -38,7 +38,7 @@ public class UsuarioController {
 	@GetMapping
 	public ResponseEntity<UsuarioDto> buscarPorEmail(@RequestParam @Email(message = "Deve ser um endereço valido!") String email){
 		UsuarioDto usuario = usuarioService.buscarUsuarioPorEmail(email);
-		return ResponseEntity.ok().body(usuario);
+		return ResponseEntity.ok(usuario);
 	}
 	
 	@DeleteMapping
