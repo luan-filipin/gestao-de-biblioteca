@@ -22,8 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.api.biblioteca.dto.CriarLivroDto;
 import com.api.biblioteca.dto.response.LivroDto;
 import com.api.biblioteca.entity.Livro;
-import com.api.biblioteca.exception.LivroInexistenteException;
-import com.api.biblioteca.exception.LivroJaExisteException;
+import com.api.biblioteca.exception.IsbnInexistenteException;
+import com.api.biblioteca.exception.IsbnJaExisteException;
 import com.api.biblioteca.mapper.CriarLivroMapper;
 import com.api.biblioteca.mapper.LivroMapper;
 import com.api.biblioteca.repository.LivroRepository;
@@ -88,9 +88,9 @@ class LivroServiceTest {
 		String isbn = "9780132350884";
 		CriarLivroDto dtoEntrada = new CriarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação");
 
-		doThrow(new LivroJaExisteException()).when(livroValidador).validaSeOLivroExiste(isbn);
+		doThrow(new IsbnJaExisteException()).when(livroValidador).validaSeOLivroExiste(isbn);
 		
-		LivroJaExisteException exception = assertThrows(LivroJaExisteException.class, ()->{
+		IsbnJaExisteException exception = assertThrows(IsbnJaExisteException.class, ()->{
 			livroServiceImp.criarLivro(dtoEntrada);
 		});
 		
@@ -142,9 +142,9 @@ class LivroServiceTest {
 		
 		String isbn = "invalido-isbn";
 		
-		doThrow(new LivroInexistenteException()).when(livroValidador).buscaPorIsbnOuLancaException(isbn);
+		doThrow(new IsbnInexistenteException()).when(livroValidador).buscaPorIsbnOuLancaException(isbn);
 		
-		LivroInexistenteException exception = assertThrows(LivroInexistenteException.class, ()->{
+		IsbnInexistenteException exception = assertThrows(IsbnInexistenteException.class, ()->{
 			livroServiceImp.buscaLivroPeloIsbn(isbn);
 		});
 		
@@ -152,4 +152,46 @@ class LivroServiceTest {
 		
 		verify(livroMapper, never()).toDto(any());
 	}
+	
+	@DisplayName("DELETE - Deve deletar um livro pelo isbn com sucesso")
+	@Test
+	void deveDeletarLivroPeloIsbnComSucesso() {
+		
+		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
+		String isbn = "9780132350884";
+		
+		Livro entity = new Livro();
+		entity.setId(1L);
+		entity.setTitulo("Clean Code");
+		entity.setAutor("Robert C. Martin");
+		entity.setIsbn(isbn);
+		entity.setDataPublicacao(dataFixa);
+		entity.setCategoria("Programação");
+		
+		when(livroValidador.buscaPorIsbnOuLancaException(isbn)).thenReturn(entity);
+		doNothing().when(livroRepository).delete(entity);
+		
+		livroServiceImp.deletaLivroPeloIsbn(isbn);
+		
+		verify(livroValidador).buscaPorIsbnOuLancaException(isbn);
+		verify(livroRepository).delete(entity);
+	}
+	
+	@DisplayName("DELETE - Deve lançar exception se o isbn for inexistente")
+	@Test
+	void deveLancarExceptionSeOIsbnForInexistente() {
+		
+		String isbn = "invalido-isbn";
+		
+		doThrow(new IsbnInexistenteException()).when(livroValidador).buscaPorIsbnOuLancaException(isbn);
+		
+		IsbnInexistenteException exception = assertThrows(IsbnInexistenteException.class, ()->{
+			livroServiceImp.deletaLivroPeloIsbn(isbn);
+		});
+		
+		assertEquals("O livro nao existe", exception.getMessage());
+		
+		verify(livroRepository, never()).delete(any());
+	}
+	
 }

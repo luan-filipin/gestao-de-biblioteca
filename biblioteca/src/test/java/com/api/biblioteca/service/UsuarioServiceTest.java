@@ -67,7 +67,7 @@ class UsuarioServiceTest {
 
 	    when(criarUsuarioMapper.toEntity(dto)).thenReturn(entity);
 	    when(usuarioRepository.save(entity)).thenReturn(entity); // simula o retorno do save
-	    when(usuarioMapper.toDto(entity)).thenReturn(usuarioDtoEsperado);
+	    when(usuarioMapper.toUsuarioDto(entity)).thenReturn(usuarioDtoEsperado);
 
 	    UsuarioDto resultado = usuarioServiceImp.criarUsuario(dto);
 
@@ -81,7 +81,7 @@ class UsuarioServiceTest {
 	    verify(usuarioValidador).validarEmailNaoCadastrado(dto.email());
 	    verify(criarUsuarioMapper).toEntity(dto);
 	    verify(usuarioRepository).save(entity);
-	    verify(usuarioMapper).toDto(entity);
+	    verify(usuarioMapper).toUsuarioDto(entity);
 	}
 
 	
@@ -128,7 +128,7 @@ class UsuarioServiceTest {
 
 		// Mocks corretos
 		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenReturn(usuario);
-		when(usuarioMapper.toDto(usuario)).thenReturn(usuarioDtoEsperado);
+		when(usuarioMapper.toUsuarioDto(usuario)).thenReturn(usuarioDtoEsperado);
 
 		UsuarioDto resultado = usuarioServiceImp.buscarUsuarioPorEmail(email);
 
@@ -141,7 +141,7 @@ class UsuarioServiceTest {
 		assertEquals(usuarioDtoEsperado.dataCadastro(), resultado.dataCadastro());
 
 		verify(usuarioValidador).buscarPorEmailOuLancarEmailInexistente(email);
-		verify(usuarioMapper).toDto(usuario);
+		verify(usuarioMapper).toUsuarioDto(usuario);
 	}
 
 	
@@ -231,7 +231,7 @@ class UsuarioServiceTest {
 		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenReturn(usuarioExistente);
 		doNothing().when(usuarioMapper).atualizaDto(dto, usuarioExistente);
 		when(usuarioRepository.save(usuarioExistente)).thenReturn(usuarioExistente);
-		when(usuarioMapper.toDto(usuarioExistente)).thenReturn(dtoEsperado);
+		when(usuarioMapper.toUsuarioDto(usuarioExistente)).thenReturn(dtoEsperado);
 
 		// Act
 		UsuarioDto resultado = usuarioServiceImp.atualizaUsuarioPeloEmail(email, dto);
@@ -249,7 +249,7 @@ class UsuarioServiceTest {
 		verify(usuarioValidador).validaEmailDaUrlDiferenteDoCorpo(email, dto.email());
 		verify(usuarioMapper).atualizaDto(dto, usuarioExistente);
 		verify(usuarioRepository).save(usuarioExistente);
-		verify(usuarioMapper).toDto(usuarioExistente);
+		verify(usuarioMapper).toUsuarioDto(usuarioExistente);
 
 	}
 	
