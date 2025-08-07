@@ -2,6 +2,7 @@ package com.api.biblioteca.service;
 
 import org.springframework.stereotype.Service;
 
+import com.api.biblioteca.dto.AtualizarLivroDto;
 import com.api.biblioteca.dto.CriarLivroDto;
 import com.api.biblioteca.dto.response.LivroDto;
 import com.api.biblioteca.entity.Livro;
@@ -33,6 +34,22 @@ public class LivroServiceImp implements LivroService{
 		Livro livro = livroValidador.buscaPorIsbnOuLancaException(isbn);
 		return livroMapper.toDto(livro);
 	}
+
+	@Override
+	public void deletaLivroPeloIsbn(String isbn) {
+		Livro livro = livroValidador.buscaPorIsbnOuLancaException(isbn);
+		livroRepository.delete(livro);
+	}
+
+	@Override
+	public LivroDto atualizaLivroPeloIsBn(String isbn, AtualizarLivroDto dto) {
+		Livro livro = livroValidador.buscaPorIsbnOuLancaException(isbn);
+		livroValidador.validaIsbnDaUrlDiferenteDoCorpo(isbn, dto.isbn());
+		livroMapper.atualizaDto(dto, livro);
+		Livro livroSalvo = livroRepository.save(livro);
+		return livroMapper.toDto(livroSalvo);
+	}
+	
 	
 	
 

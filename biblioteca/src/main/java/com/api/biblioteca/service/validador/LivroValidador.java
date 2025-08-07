@@ -3,8 +3,9 @@ package com.api.biblioteca.service.validador;
 import org.springframework.stereotype.Component;
 
 import com.api.biblioteca.entity.Livro;
-import com.api.biblioteca.exception.LivroInexistenteException;
-import com.api.biblioteca.exception.LivroJaExisteException;
+import com.api.biblioteca.exception.IsbnDiferenteDoCorpoException;
+import com.api.biblioteca.exception.IsbnInexistenteException;
+import com.api.biblioteca.exception.IsbnJaExisteException;
 import com.api.biblioteca.repository.LivroRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -17,11 +18,17 @@ public class LivroValidador {
 	
 	public void validaSeOLivroExiste(String isbn) {
 		if(livroRepository.existsByIsbn(isbn)) {
-			throw new LivroJaExisteException();
+			throw new IsbnJaExisteException();
 		}
 	}
 	
 	public Livro buscaPorIsbnOuLancaException(String isbn) {
-		return livroRepository.findByIsbn(isbn).orElseThrow(LivroInexistenteException::new);
+		return livroRepository.findByIsbn(isbn).orElseThrow(IsbnInexistenteException::new);
+	}
+	
+	public void validaIsbnDaUrlDiferenteDoCorpo(String isbnUrl, String isbnCorpo) {
+		if(!isbnUrl.equals(isbnCorpo)) {
+			throw new IsbnDiferenteDoCorpoException();
+		}
 	}
 }

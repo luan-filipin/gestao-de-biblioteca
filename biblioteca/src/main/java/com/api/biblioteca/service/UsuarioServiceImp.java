@@ -26,13 +26,13 @@ public class UsuarioServiceImp implements UsuarioService{
 	public UsuarioDto criarUsuario(CriarUsuarioDto dto) {
 		usuarioValidador.validarEmailNaoCadastrado(dto.email());
 		Usuario usuarioSalvo = usuarioRepository.save(criarUsuarioMapper.toEntity(dto));
-		return usuarioMapper.toDto(usuarioSalvo);
+		return usuarioMapper.toUsuarioDto(usuarioSalvo);
 	}
 
 	@Override
 	public UsuarioDto buscarUsuarioPorEmail(String email) {
 		Usuario usuario = usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email);
-		return usuarioMapper.toDto(usuario);
+		return usuarioMapper.toUsuarioDto(usuario);
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class UsuarioServiceImp implements UsuarioService{
 		usuarioValidador.validaEmailDaUrlDiferenteDoCorpo(email, dto.email());
 		usuarioMapper.atualizaDto(dto, usuario);
 		Usuario usuarioSalvo = usuarioRepository.save(usuario);
-		return usuarioMapper.toDto(usuarioSalvo);
+		return usuarioMapper.toUsuarioDto(usuarioSalvo);
 	}
 	
 	

@@ -10,9 +10,10 @@ import com.api.biblioteca.entity.Usuario;
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
 
-	UsuarioDto toDto(Usuario entity);
+	UsuarioDto toUsuarioDto(Usuario entity);
 	
-	Usuario toEntity(UsuarioDto dto);
+	Usuario toUsuarioEntity(UsuarioDto dto);
 	
 	void atualizaDto(AtualizaUsuarioDto dto, @MappingTarget Usuario entity);
+	
 }
