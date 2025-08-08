@@ -10,8 +10,6 @@ public record AtualizarLivroDto(
 		String titulo,
 		@NotBlank(message = "O campo autor é obrigatorio!")
 		String autor,
-		@NotBlank(message = "O campo isbn é obrigatorio!")
-		String isbn,
 		@NotBlank(message = "O campo categoria é obrigatorio!")
 		String categoria,
 		@NotNull(message = "O campo dataPublicacao é obrigatorio!")
