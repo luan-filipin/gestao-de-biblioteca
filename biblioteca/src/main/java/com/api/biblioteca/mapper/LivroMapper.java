@@ -1,5 +1,7 @@
 package com.api.biblioteca.mapper;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
@@ -15,4 +17,6 @@ public interface LivroMapper {
 	Livro toEntity(LivroDto dto);
 	
 	void atualizaDto(AtualizarLivroDto dto, @MappingTarget Livro entity);
+	
+	List<LivroDto> toListDto(List<Livro> entity);
 }
