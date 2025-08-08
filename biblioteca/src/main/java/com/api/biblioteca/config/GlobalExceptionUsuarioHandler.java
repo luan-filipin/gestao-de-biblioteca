@@ -14,6 +14,7 @@ import com.api.biblioteca.dto.response.ErroRespostaDto;
 import com.api.biblioteca.exception.EmailDiferenteDoCorpoException;
 import com.api.biblioteca.exception.EmailInexistenteException;
 import com.api.biblioteca.exception.EmailJaExisteException;
+import com.api.biblioteca.exception.IdUsuarioNaoExisteException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -41,6 +42,15 @@ public class GlobalExceptionUsuarioHandler {
 	
 	@ExceptionHandler(EmailInexistenteException.class)
 	public ResponseEntity<ErroRespostaDto> handlerEmailInexistente(EmailInexistenteException ex, HttpServletRequest request){
+		ErroRespostaDto erro = new ErroRespostaDto(
+				ex.getMessage(),
+				HttpStatus.NOT_FOUND.value(),
+				request.getRequestURI());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+	}
+	
+	@ExceptionHandler(IdUsuarioNaoExisteException.class)
+	public ResponseEntity<ErroRespostaDto> handlerIdNaoExiste(IdUsuarioNaoExisteException ex, HttpServletRequest request){
 		ErroRespostaDto erro = new ErroRespostaDto(
 				ex.getMessage(),
 				HttpStatus.NOT_FOUND.value(),
