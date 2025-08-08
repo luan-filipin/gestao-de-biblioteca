@@ -13,6 +13,7 @@ import com.api.biblioteca.dto.response.ErroRespostaDto;
 import com.api.biblioteca.exception.IdLivroNaoExisteException;
 import com.api.biblioteca.exception.IsbnInexistenteException;
 import com.api.biblioteca.exception.IsbnJaExisteException;
+import com.api.biblioteca.exception.NenhumLivroEncontradoParaRecomendacaoException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -46,6 +47,16 @@ public class GlobalExceptionLivrosHandler {
 				request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
 	}
+	
+	@ExceptionHandler(NenhumLivroEncontradoParaRecomendacaoException.class)
+	public ResponseEntity<ErroRespostaDto> handlerNenhumLivroEncontradoParaRecomendacao(NenhumLivroEncontradoParaRecomendacaoException ex, HttpServletRequest request){
+		ErroRespostaDto erro = new ErroRespostaDto(
+				ex.getMessage(),
+				HttpStatus.NOT_FOUND.value(),
+				request.getRequestURI());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+	}
+	
 	
 	@ExceptionHandler(IsbnJaExisteException.class)
 	public ResponseEntity<ErroRespostaDto> handlerIsbnJaExiste(IsbnJaExisteException ex, HttpServletRequest request){
