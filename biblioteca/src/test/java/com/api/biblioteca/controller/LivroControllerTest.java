@@ -47,7 +47,7 @@ class LivroControllerTest {
 	void deveCriarLivroSeRequisicaoForValida() throws Exception {
 
 		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
-		CriarLivroDto dtoEntrada = new CriarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação");
+		CriarLivroDto dtoEntrada = new CriarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação", dataFixa);
 		LivroDto dtoEsperado = new LivroDto(1L, "Clean Code", "Robert C. Martin", "9780132350884", dataFixa,
 				"Programação");
 
@@ -64,8 +64,9 @@ class LivroControllerTest {
 	@DisplayName("POST - Deve lançar exception se houver campo invalido.")
 	@Test
 	void deveLancarExceptionSeHouverCampoInvalido() throws Exception {
-
-		CriarLivroDto dtoEntrada = new CriarLivroDto("", "Robert C. Martin", "9780132350884", "Programação");
+		
+		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
+		CriarLivroDto dtoEntrada = new CriarLivroDto("", "Robert C. Martin", "9780132350884", "Programação", dataFixa);
 
 		mockMvc.perform(post("/api/livros").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(dtoEntrada))).andExpect(status().isBadRequest())
