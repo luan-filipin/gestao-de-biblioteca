@@ -1,11 +1,14 @@
 package com.api.biblioteca.service.validador;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.api.biblioteca.entity.Livro;
 import com.api.biblioteca.exception.IdLivroNaoExisteException;
 import com.api.biblioteca.exception.IsbnInexistenteException;
 import com.api.biblioteca.exception.IsbnJaExisteException;
+import com.api.biblioteca.exception.NenhumLivroEncontradoParaRecomendacaoException;
 import com.api.biblioteca.repository.LivroRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -28,5 +31,11 @@ public class LivroValidador {
 	
 	public Livro validaSeIdDoLivroExiste(Long id) {
 		return livroRepository.findById(id).orElseThrow(IdLivroNaoExisteException::new);
+	}
+	
+	public void validaSeAListaEstaVazia(List<Livro> livros) {
+	    if (livros.isEmpty()) {
+	        throw new NenhumLivroEncontradoParaRecomendacaoException();
+	    }
 	}
 }
