@@ -3,7 +3,6 @@ package com.api.biblioteca.config;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.api.biblioteca.dto.response.ErroCampoDto;
 import com.api.biblioteca.dto.response.ErroRespostaDto;
 import com.api.biblioteca.exception.IdLivroNaoExisteException;
-import com.api.biblioteca.exception.IsbnDiferenteDoCorpoException;
 import com.api.biblioteca.exception.IsbnInexistenteException;
 import com.api.biblioteca.exception.IsbnJaExisteException;
 
@@ -29,15 +27,6 @@ public class GlobalExceptionLivrosHandler {
 				HttpStatus.INTERNAL_SERVER_ERROR.value(),
 				request.getRequestURI());
 	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
-	}
-
-	@ExceptionHandler(IsbnDiferenteDoCorpoException.class)
-	public ResponseEntity<ErroRespostaDto> handlerIsbnDiferenteDoCorpo(IsbnDiferenteDoCorpoException ex, HttpServletRequest request){
-		ErroRespostaDto erro = new ErroRespostaDto(
-				ex.getMessage(), 
-				HttpStatus.BAD_REQUEST.value(),
-				request.getRequestURI());
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
 	}
 	
 	@ExceptionHandler(IsbnInexistenteException.class)

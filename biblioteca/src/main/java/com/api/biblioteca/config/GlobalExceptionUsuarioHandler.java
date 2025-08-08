@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.api.biblioteca.dto.response.ErroCampoDto;
 import com.api.biblioteca.dto.response.ErroRespostaDto;
-import com.api.biblioteca.exception.EmailDiferenteDoCorpoException;
 import com.api.biblioteca.exception.EmailInexistenteException;
 import com.api.biblioteca.exception.EmailJaExisteException;
 import com.api.biblioteca.exception.IdUsuarioNaoExisteException;
@@ -29,15 +28,6 @@ public class GlobalExceptionUsuarioHandler {
 				HttpStatus.INTERNAL_SERVER_ERROR.value(), 
 				request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
-	}
-	
-	@ExceptionHandler(EmailDiferenteDoCorpoException.class)
-	public ResponseEntity<ErroRespostaDto> handlerEmailDiferenteDoCorpo(EmailDiferenteDoCorpoException ex, HttpServletRequest request){
-		ErroRespostaDto erro = new ErroRespostaDto(
-				ex.getMessage(),
-				HttpStatus.BAD_REQUEST.value(),
-				request.getRequestURI());
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
 	}
 	
 	@ExceptionHandler(EmailInexistenteException.class)
