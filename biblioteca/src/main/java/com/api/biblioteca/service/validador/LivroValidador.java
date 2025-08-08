@@ -3,6 +3,7 @@ package com.api.biblioteca.service.validador;
 import org.springframework.stereotype.Component;
 
 import com.api.biblioteca.entity.Livro;
+import com.api.biblioteca.exception.IdLivroNaoExisteException;
 import com.api.biblioteca.exception.IsbnDiferenteDoCorpoException;
 import com.api.biblioteca.exception.IsbnInexistenteException;
 import com.api.biblioteca.exception.IsbnJaExisteException;
@@ -30,5 +31,9 @@ public class LivroValidador {
 		if(!isbnUrl.equals(isbnCorpo)) {
 			throw new IsbnDiferenteDoCorpoException();
 		}
+	}
+	
+	public Livro validaSeIdDoLivroExiste(Long id) {
+		return livroRepository.findById(id).orElseThrow(IdLivroNaoExisteException::new);
 	}
 }

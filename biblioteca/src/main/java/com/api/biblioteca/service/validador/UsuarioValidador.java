@@ -6,6 +6,7 @@ import com.api.biblioteca.entity.Usuario;
 import com.api.biblioteca.exception.EmailDiferenteDoCorpoException;
 import com.api.biblioteca.exception.EmailInexistenteException;
 import com.api.biblioteca.exception.EmailJaExisteException;
+import com.api.biblioteca.exception.IdUsuarioNaoExisteException;
 import com.api.biblioteca.repository.UsuarioRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,10 @@ public class UsuarioValidador {
 
 	public Usuario buscarPorEmailOuLancarEmailInexistente(String email) {
 		return usuarioRepository.findByEmail(email).orElseThrow(EmailInexistenteException::new);
+	}
+	
+	public Usuario validaSeIDDoUsuarioExiste(Long id) {
+		return usuarioRepository.findById(id).orElseThrow(IdUsuarioNaoExisteException::new);
 	}
 
 }
