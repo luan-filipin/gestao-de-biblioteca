@@ -44,7 +44,6 @@ public class LivroServiceImp implements LivroService{
 	@Override
 	public LivroDto atualizaLivroPeloIsBn(String isbn, AtualizarLivroDto dto) {
 		Livro livro = livroValidador.buscaPorIsbnOuLancaException(isbn);
-		livroValidador.validaIsbnDaUrlDiferenteDoCorpo(isbn, dto.isbn());
 		livroMapper.atualizaDto(dto, livro);
 		Livro livroSalvo = livroRepository.save(livro);
 		return livroMapper.toDto(livroSalvo);

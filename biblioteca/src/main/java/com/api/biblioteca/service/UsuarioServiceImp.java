@@ -44,7 +44,6 @@ public class UsuarioServiceImp implements UsuarioService{
 	@Override
 	public UsuarioDto atualizaUsuarioPeloEmail(String email, AtualizaUsuarioDto dto) {
 		Usuario usuario = usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email);
-		usuarioValidador.validaEmailDaUrlDiferenteDoCorpo(email, dto.email());
 		usuarioMapper.atualizaDto(dto, usuario);
 		Usuario usuarioSalvo = usuarioRepository.save(usuario);
 		return usuarioMapper.toUsuarioDto(usuarioSalvo);
