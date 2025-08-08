@@ -1,10 +1,13 @@
 package com.api.biblioteca.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,8 +19,10 @@ import com.api.biblioteca.dto.AtualizarLivroDto;
 import com.api.biblioteca.dto.CriarLivroDto;
 import com.api.biblioteca.dto.response.LivroDto;
 import com.api.biblioteca.service.LivroService;
+import com.api.biblioteca.service.RecomendaService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class LivroController {
 
 	private final LivroService livroService;
+	private final RecomendaService recomendaService;
 
 	@PostMapping
 	public ResponseEntity<LivroDto> criarLivro(@RequestBody @Valid CriarLivroDto dto) {
@@ -55,5 +61,12 @@ public class LivroController {
 			@RequestBody @Valid AtualizarLivroDto dto) {
 		LivroDto livro = livroService.atualizaLivroPeloIsBn(isbn, dto);
 		return ResponseEntity.ok(livro);
+	}
+
+	@GetMapping("/recomendacao")
+	public ResponseEntity<List<LivroDto>> recomendarLivrosPorUsuario(
+			@RequestParam @NotBlank(message = "O email é obrigatorio!") @Email(message = "Email invalido!") String email) {
+		List<LivroDto> recomendacoes = recomendaService.recomendarLivrosPorUsuario(email);
+		return ResponseEntity.ok(recomendacoes);
 	}
 }
