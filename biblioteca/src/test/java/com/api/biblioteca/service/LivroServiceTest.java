@@ -51,7 +51,7 @@ class LivroServiceTest {
 		
 		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 
-		CriarLivroDto dtoEntrada = new CriarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação");
+		CriarLivroDto dtoEntrada = new CriarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação", dataFixa);
 		
 		Livro entitySalvo = new Livro();
 		entitySalvo.setId(1L);
@@ -87,8 +87,9 @@ class LivroServiceTest {
 	@Test
 	void deveLancarExceptionSeOIsbnForExistente() {
 		
+		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 		String isbn = "9780132350884";
-		CriarLivroDto dtoEntrada = new CriarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação");
+		CriarLivroDto dtoEntrada = new CriarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação", dataFixa);
 
 		doThrow(new IsbnJaExisteException()).when(livroValidador).validaSeOLivroExiste(isbn);
 		
