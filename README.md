@@ -2,13 +2,11 @@
 Este projeto é uma API REST desenvolvida em Java com Spring Boot, que simula o gerenciamento de uma biblioteca. É possível cadastrar usuários, livros, realizar empréstimos, devoluções e obter recomendações personalizadas de livros com base em categorias.
 
 ## ✅ Funcionalidades
-📖 Cadastro, listagem e consulta de livros
+📖 Livros: CRUD completo.
 
-👤 Cadastro, listagem e consulta de usuários
+👤 Usuários: CRUD completo.
 
-📦 Empréstimo de livros com controle de disponibilidade
-
-📅 Devolução de livros
+📦 Empréstimo: Cria e Atualiza.
 
 🔍 Validações de regras de negócio:
 
