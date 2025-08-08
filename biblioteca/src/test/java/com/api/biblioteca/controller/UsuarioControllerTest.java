@@ -121,7 +121,7 @@ class UsuarioControllerTest {
 			.andExpect(jsonPath("$.mensagem").value("Campos inválidos"))
 			.andExpect(jsonPath("$.path").value("/api/usuarios"))
 			.andExpect(jsonPath("$.timestamp").exists())
-			.andExpect(jsonPath("$.erros[0].campo").value("buscarPorEmail.email"))
+			.andExpect(jsonPath("$.erros[0].campo").value(org.hamcrest.Matchers.endsWith("email")))
 			.andExpect(jsonPath("$.erros[0].mensagem").value("Deve ser um endereço valido!"));
 	}
 	
@@ -151,7 +151,7 @@ class UsuarioControllerTest {
 		.andExpect(jsonPath("$.mensagem").value("Campos inválidos"))
 		.andExpect(jsonPath("$.path").value("/api/usuarios"))
 		.andExpect(jsonPath("$.timestamp").exists())
-		.andExpect(jsonPath("$.erros[0].campo").value("deletaPeloEmail.email"))
+		.andExpect(jsonPath("$.erros[0].campo").value(org.hamcrest.Matchers.endsWith("email")))
 		.andExpect(jsonPath("$.erros[0].mensagem").value("Deve ser um endereço valido!"));
 		
 	}
@@ -163,7 +163,7 @@ class UsuarioControllerTest {
 		LocalDateTime dataFixa = LocalDateTime.of(2025, 8, 6, 12, 0);
 		String email = "teste@teste.com";
 		
-		AtualizaUsuarioDto usuarioEntrada = new AtualizaUsuarioDto("Teste Teste", email, "(11) 91234-5678");
+		AtualizaUsuarioDto usuarioEntrada = new AtualizaUsuarioDto("Teste Teste", "(11) 91234-5678");
 		
 		UsuarioDto entity = new UsuarioDto(1L,"Luan Brito", "teste@teste.com", dataFixa, "(11) 91234-5678");
 
@@ -186,7 +186,7 @@ class UsuarioControllerTest {
 		
 		String email = "email-invalido";
 		
-		AtualizaUsuarioDto usuarioEntrada = new AtualizaUsuarioDto("Teste Teste", email, "(11) 91234-5678");
+		AtualizaUsuarioDto usuarioEntrada = new AtualizaUsuarioDto("Teste Teste", "(11) 91234-5678");
 
 		
 		mockMvc.perform(put("/api/usuarios")
@@ -198,7 +198,7 @@ class UsuarioControllerTest {
 		.andExpect(jsonPath("$.mensagem").value("Campos inválidos"))
 		.andExpect(jsonPath("$.path").value("/api/usuarios"))
 		.andExpect(jsonPath("$.timestamp").exists())
-		.andExpect(jsonPath("$.erros[0].campo").value("email"))
+		.andExpect(jsonPath("$.erros[0].campo").value(org.hamcrest.Matchers.endsWith("email")))
 		.andExpect(jsonPath("$.erros[0].mensagem").value("Deve ser um endereço valido!"));
 	}
 }

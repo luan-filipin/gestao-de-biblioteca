@@ -136,7 +136,7 @@ class LivroControllerTest {
 		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 		String isbn = "9780132350884";
 		
-		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("Clean Code", "Robert C. Martin", isbn, "Programação", dataFixa);
+		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("Clean Code", "Robert C. Martin", "Programação", dataFixa);
 
 		LivroDto dtoEsperado = new LivroDto(1L, "Clean Code", "Robert C. Martin", isbn, dataFixa, "Programação");
 		
@@ -160,7 +160,7 @@ class LivroControllerTest {
 		
 		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 		String isbn = "";
-		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação", dataFixa);
+		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("Clean Code", "Robert C. Martin", "Programação", dataFixa);
 		
 		mockMvc.perform(put("/api/livros")
 				.param("isbn", isbn)
@@ -183,7 +183,7 @@ class LivroControllerTest {
 		
 		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 		String isbn = "9780132350884";
-		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("", "Robert C. Martin", isbn, "Programação", dataFixa);
+		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("", "Robert C. Martin", "Programação", dataFixa);
 
 		mockMvc.perform(put("/api/livros")
 				.param("isbn", isbn)

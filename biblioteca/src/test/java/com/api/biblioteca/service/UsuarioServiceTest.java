@@ -22,7 +22,6 @@ import com.api.biblioteca.dto.CriarUsuarioDto;
 import com.api.biblioteca.dto.response.AtualizaUsuarioDto;
 import com.api.biblioteca.dto.response.UsuarioDto;
 import com.api.biblioteca.entity.Usuario;
-import com.api.biblioteca.exception.EmailDiferenteDoCorpoException;
 import com.api.biblioteca.exception.EmailInexistenteException;
 import com.api.biblioteca.exception.EmailJaExisteException;
 import com.api.biblioteca.mapper.CriarUsuarioMapper;
@@ -204,7 +203,7 @@ class UsuarioServiceTest {
 	void deveAtualizarUsuarioComSucesso() {
 		
 		String email = "teste@teste.com";
-		AtualizaUsuarioDto dto = new AtualizaUsuarioDto("Luan Brito", "teste@teste.com", "(11) 91234-5678");
+		AtualizaUsuarioDto dto = new AtualizaUsuarioDto("Luan Brito", "(11) 91234-5678");
 
 		Usuario usuarioExistente = new Usuario();
 		usuarioExistente.setId(1L);
@@ -213,16 +212,9 @@ class UsuarioServiceTest {
 		usuarioExistente.setTelefone("(11) 91234-5678");
 		usuarioExistente.setDataCadastro(LocalDateTime.now());
 
-		UsuarioDto dtoEsperado = new UsuarioDto(
-		        usuarioExistente.getId(),
-		        dto.nome(),
-		        dto.email(),
-		        usuarioExistente.getDataCadastro(),
-		        dto.telefone()
-		);
+		UsuarioDto dtoEsperado = new UsuarioDto(1L, "Luan Brito", "teste@teste.com", LocalDateTime.now(), "(11) 91234-5678");
 
 		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenReturn(usuarioExistente);
-		doNothing().when(usuarioValidador).validaEmailDaUrlDiferenteDoCorpo(email, dto.email());
 		doNothing().when(usuarioMapper).atualizaDto(dto, usuarioExistente);
 		when(usuarioRepository.save(usuarioExistente)).thenReturn(usuarioExistente);
 		when(usuarioMapper.toUsuarioDto(usuarioExistente)).thenReturn(dtoEsperado);
@@ -237,42 +229,37 @@ class UsuarioServiceTest {
 		assertEquals(dtoEsperado.dataCadastro(), resultado.dataCadastro());
 
 		verify(usuarioValidador).buscarPorEmailOuLancarEmailInexistente(email);
-		verify(usuarioValidador).validaEmailDaUrlDiferenteDoCorpo(email, dto.email());
 		verify(usuarioMapper).atualizaDto(dto, usuarioExistente);
 		verify(usuarioRepository).save(usuarioExistente);
 		verify(usuarioMapper).toUsuarioDto(usuarioExistente);
 
 	}
 	
-	@DisplayName("PUT - Deve lançar exception quando o email da URL for diferente do email do corpo")
+	@DisplayName("PUT - Deve lançar exception quando o email nao existir.")
 	@Test
 	void deveLancarExceptionQuandoEmailDaUrlDiferenteDoCorpo() {
 
-	    String emailUrl = "url@teste.com";
-	    String emailCorpo = "corpo@teste.com";
+	    String email = "";
 
-	    AtualizaUsuarioDto dto = new AtualizaUsuarioDto("Luan Brito", emailCorpo, "(11) 91234-5678");
+	    AtualizaUsuarioDto dto = new AtualizaUsuarioDto("Luan Brito", "(11) 91234-5678");
 
 	    Usuario usuarioExistente = new Usuario();
 	    usuarioExistente.setId(1L);
 	    usuarioExistente.setNome("Nome Antigo");
-	    usuarioExistente.setEmail(emailCorpo);
+	    usuarioExistente.setEmail(email);
 	    usuarioExistente.setTelefone("(11) 90000-0000");
 	    usuarioExistente.setDataCadastro(LocalDateTime.now());
 
-		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(emailUrl)).thenReturn(usuarioExistente);
-	    doThrow(new EmailDiferenteDoCorpoException()).when(usuarioValidador)
-	        .validaEmailDaUrlDiferenteDoCorpo(emailUrl, emailCorpo);
+		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenThrow(new EmailInexistenteException());
 
-	    EmailDiferenteDoCorpoException exception = assertThrows(
-	        EmailDiferenteDoCorpoException.class,
-	        () -> usuarioServiceImp.atualizaUsuarioPeloEmail(emailUrl, dto)
+	    EmailInexistenteException exception = assertThrows(
+	    		EmailInexistenteException.class,
+	        () -> usuarioServiceImp.atualizaUsuarioPeloEmail(email, dto)
 	    );
 
-	    assertEquals("O email no corpo da requisição não pode ser diferente do email da URL.", exception.getMessage());
+	    assertEquals("O email não existe!", exception.getMessage());
 
-	    verify(usuarioValidador).buscarPorEmailOuLancarEmailInexistente(emailUrl);
-	    verify(usuarioValidador).validaEmailDaUrlDiferenteDoCorpo(emailUrl, emailCorpo);
+	    verify(usuarioValidador).buscarPorEmailOuLancarEmailInexistente(email);
 	    verify(usuarioMapper, never()).atualizaDto(any(), any());
 	    verify(usuarioRepository, never()).save(any());
 	}
