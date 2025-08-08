@@ -4,7 +4,9 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ import com.api.biblioteca.dto.AtualizarLivroDto;
 import com.api.biblioteca.dto.CriarLivroDto;
 import com.api.biblioteca.dto.response.LivroDto;
 import com.api.biblioteca.service.LivroService;
+import com.api.biblioteca.service.RecomendaService;
+import com.api.biblioteca.service.RecomendaServiceImp;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(LivroController.class)
@@ -41,6 +45,9 @@ class LivroControllerTest {
 
 	@MockitoBean
 	private LivroService livroService;
+	
+	@MockitoBean
+	private RecomendaService recomendaService;
 
 	@DisplayName("POST - Deve criar um livro quando a requisição for valida.")
 	@Test
@@ -196,5 +203,71 @@ class LivroControllerTest {
 		.andExpect(jsonPath("$.timestamp").exists())
 		.andExpect(jsonPath("$.erros[0].campo").value("titulo"))
 		.andExpect(jsonPath("$.erros[0].mensagem").value("O campo titulo é obrigatorio!"));
+	}
+	
+	@DisplayName("GET - Deve retornar as recomendações de livros com sucesso.")
+	@Test
+	void deveRetornarAsRecomendacoesDeLivrosComSucesso() throws Exception{
+		
+		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
+		String email = "teste@teste.com";
+		
+		LivroDto dto1 = new LivroDto(1L, "Clean Code", "Robert C. Martin", "9780132350884", dataFixa, "Programação");
+		LivroDto dto2 = new LivroDto(2L, "Desenvolvimento de APIs REST com Spring Boot", "João da Silva", "9788575227992", dataFixa, "Desenvolvimento Web");
+
+		List<LivroDto> livrosDto = List.of(dto1, dto2);
+		
+		when(recomendaService.recomendarLivrosPorUsuario(email)).thenReturn(livrosDto);
+		
+		mockMvc.perform(get("/api/livros/recomendacao")
+				.param("email", email)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(livrosDto)))
+		.andExpect(status().isOk())
+	    .andExpect(jsonPath("$", Matchers.hasSize(livrosDto.size())))
+	    .andExpect(jsonPath("$[0].id").value(dto1.id()))
+	    .andExpect(jsonPath("$[0].titulo").value(dto1.titulo()))
+	    .andExpect(jsonPath("$[0].autor").value(dto1.autor()))
+	    .andExpect(jsonPath("$[0].isbn").value(dto1.isbn()))
+	    .andExpect(jsonPath("$[0].dataPublicacao").value(dto1.dataPublicacao().toString()))
+	    .andExpect(jsonPath("$[0].categoria").value(dto1.categoria()))
+	    .andExpect(jsonPath("$[1].id").value(dto2.id()))
+	    .andExpect(jsonPath("$[1].titulo").value(dto2.titulo()))
+	    .andExpect(jsonPath("$[1].autor").value(dto2.autor()))
+	    .andExpect(jsonPath("$[1].isbn").value(dto2.isbn()))
+	    .andExpect(jsonPath("$[1].dataPublicacao").value(dto2.dataPublicacao().toString()))
+	    .andExpect(jsonPath("$[1].categoria").value(dto2.categoria()));
+	}
+	
+	@DisplayName("GET - Deve lançar exception se o email estiver invalido.")
+	@Test
+	void deveLancarExceptionSeEmailEstiverInvalido() throws Exception{
+		String email = "email-invalid";
+		
+		mockMvc.perform(get("/api/livros/recomendacao")
+				.param("email", email))
+		.andExpect(status().isBadRequest())
+		.andExpect(jsonPath("$.mensagem").value("Campos inválidos"))
+		.andExpect(jsonPath("$.status").value(400))
+		.andExpect(jsonPath("$.path").value("/api/livros/recomendacao"))
+		.andExpect(jsonPath("$.timestamp").exists())
+		.andExpect(jsonPath("$.erros[0].campo").value(org.hamcrest.Matchers.endsWith("email")))
+		.andExpect(jsonPath("$.erros[0].mensagem").value("Email invalido!"));
+	}
+	
+	@DisplayName("GET - Deve lançar exception se nao houver email.")
+	@Test
+	void deveLancarExceptionSeNaoHouverEmail() throws Exception{
+		String email = "";
+		
+		mockMvc.perform(get("/api/livros/recomendacao")
+				.param("email", email))
+		.andExpect(status().isBadRequest())
+		.andExpect(jsonPath("$.mensagem").value("Campos inválidos"))
+		.andExpect(jsonPath("$.status").value(400))
+		.andExpect(jsonPath("$.path").value("/api/livros/recomendacao"))
+		.andExpect(jsonPath("$.timestamp").exists())
+		.andExpect(jsonPath("$.erros[0].campo").value(org.hamcrest.Matchers.endsWith("email")))
+		.andExpect(jsonPath("$.erros[0].mensagem").value("O email é obrigatorio!"));
 	}
 }
