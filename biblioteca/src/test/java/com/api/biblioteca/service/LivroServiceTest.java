@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import com.api.biblioteca.dto.response.LivroDto;
 import com.api.biblioteca.entity.Livro;
 import com.api.biblioteca.exception.IsbnInexistenteException;
 import com.api.biblioteca.exception.IsbnJaExisteException;
+import com.api.biblioteca.exception.NenhumLivroEncontradoParaRecomendacaoException;
 import com.api.biblioteca.mapper.CriarLivroMapper;
 import com.api.biblioteca.mapper.LivroMapper;
 import com.api.biblioteca.repository.LivroRepository;
@@ -43,6 +45,8 @@ class LivroServiceTest {
 	private LivroMapper livroMapper;
 	@InjectMocks
 	private LivroServiceImp livroServiceImp;
+	@InjectMocks
+	private RecomendaServiceImp recomendaServiceImp;
 	
 	@DisplayName("POST - Deve criar o livro com sucesso")
 	@Test
@@ -278,6 +282,81 @@ class LivroServiceTest {
 		verify(livroMapper, never()).atualizaDto(any(), any());
 		verify(livroRepository, never()).save(any());
 		verify(livroMapper, never()).toDto(any());		
+	}
+	
+	@DisplayName("GET - Deve retornar uma lista de livros de recomendação com sucesso")
+	@Test
+	void deveRetornarUmaListadeLivrosDeRecomendacaoComSucesso() {
+		
+		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
+		String email = "teste@teste";
+		
+		LivroDto dto1 = new LivroDto(1L, "Clean Code", "Robert C. Martin", "9780132350884", dataFixa, "Programação");
+		LivroDto dto2 = new LivroDto(2L, "Desenvolvimento de APIs REST com Spring Boot", "João da Silva", "9788575227992", dataFixa, "Desenvolvimento Web");
+
+		List<LivroDto> livrosDto = List.of(dto1, dto2);
+		
+		Livro entity1 = new Livro();
+		entity1.setId(1L);
+		entity1.setTitulo("Clean Code");
+		entity1.setAutor("Robert C. Martin");
+		entity1.setIsbn("9780132350884");
+		entity1.setDataPublicacao(dataFixa);
+		entity1.setCategoria("Programação");
+		
+		
+		Livro entity2 = new Livro();
+		entity2.setId(2L);
+		entity2.setTitulo("Desenvolvimento de APIs REST com Spring Boot");
+		entity2.setAutor("João da Silva");
+		entity2.setIsbn("9788575227992");
+		entity2.setDataPublicacao(dataFixa);
+		entity2.setCategoria("Desenvolvimento Web");
+		
+		List<Livro> livrosEntity = List.of(entity1, entity2);
+		
+		when(livroRepository.recomendarLivrosPorCategoriaQueUsuarioAindaNaoLeu(email)).thenReturn(livrosEntity);
+		doNothing().when(livroValidador).validaSeAListaEstaVazia(livrosEntity);
+		when(livroMapper.toListDto(livrosEntity)).thenReturn(livrosDto);
+		
+		List<LivroDto> resultado = recomendaServiceImp.recomendarLivrosPorUsuario(email);
+		
+		assertNotNull(resultado);
+		assertEquals(livrosEntity.get(0).getId(), resultado.get(0).id());
+		assertEquals(livrosEntity.get(1).getId(), resultado.get(1).id());
+		assertEquals(livrosEntity.get(0).getTitulo(), resultado.get(0).titulo());
+		assertEquals(livrosEntity.get(1).getTitulo(), resultado.get(1).titulo());
+		assertEquals(livrosEntity.get(0).getAutor(), resultado.get(0).autor());
+		assertEquals(livrosEntity.get(1).getAutor(), resultado.get(1).autor());
+		assertEquals(livrosEntity.get(0).getIsbn(), resultado.get(0).isbn());
+		assertEquals(livrosEntity.get(1).getIsbn(), resultado.get(1).isbn());
+		assertEquals(livrosEntity.get(0).getCategoria(), resultado.get(0).categoria());
+		assertEquals(livrosEntity.get(1).getCategoria(), resultado.get(1).categoria());
+		
+		verify(livroRepository).recomendarLivrosPorCategoriaQueUsuarioAindaNaoLeu(email);
+		verify(livroValidador).validaSeAListaEstaVazia(livrosEntity);
+		verify(livroMapper).toListDto(livrosEntity);
+	}
+	
+	@DisplayName("GET - Deve lançar exception se a lista estiver vazia.")
+	@Test
+	void deveLancarExcetionSeListaEstiverVazia() {
+		
+		String email = "teste@teste";
+		
+		List<Livro> livrosEntity = List.of();
+		
+		when(livroRepository.recomendarLivrosPorCategoriaQueUsuarioAindaNaoLeu(email)).thenReturn(livrosEntity);
+		doThrow(new NenhumLivroEncontradoParaRecomendacaoException()).when(livroValidador).validaSeAListaEstaVazia(livrosEntity);
+		
+		NenhumLivroEncontradoParaRecomendacaoException exception = assertThrows(NenhumLivroEncontradoParaRecomendacaoException.class, ()->{
+			recomendaServiceImp.recomendarLivrosPorUsuario(email);
+		});
+		
+		assertEquals("Nenhum livro encontrado para recomendação.", exception.getMessage());;
+		
+		verify(livroMapper, never()).toListDto(any());
+		
 	}
 	
 	
