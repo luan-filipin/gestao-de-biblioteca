@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.api.biblioteca.dto.response.ErroCampoDto;
 import com.api.biblioteca.dto.response.ErroRespostaDto;
+import com.api.biblioteca.exception.IdLivroNaoExisteException;
 import com.api.biblioteca.exception.IsbnDiferenteDoCorpoException;
 import com.api.biblioteca.exception.IsbnInexistenteException;
 import com.api.biblioteca.exception.IsbnJaExisteException;
@@ -46,6 +47,15 @@ public class GlobalExceptionLivrosHandler {
 				HttpStatus.NOT_FOUND.value(),
 				request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+	}
+	
+	@ExceptionHandler(IdLivroNaoExisteException.class)
+	public ResponseEntity<ErroRespostaDto> handlerIdLivroNaoExiste(IdLivroNaoExisteException ex, HttpServletRequest request){
+		ErroRespostaDto erro = new ErroRespostaDto(
+				ex.getMessage(),
+				HttpStatus.NOT_FOUND.value(),
+				request.getRequestURI());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
 	}
 	
 	@ExceptionHandler(IsbnJaExisteException.class)
