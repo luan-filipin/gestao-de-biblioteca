@@ -101,6 +101,9 @@ Atualizar Livro.
   "dataPublicacao": "2025-08-07"
 }
 ```
+Recomendações Livro.
+- `POST /api/livros/recomendacao?email=email@teste.com`
+
 
 ## 📡Endopoints Livros:
 Cadastrar Emprestimo.
