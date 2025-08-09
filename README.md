@@ -55,12 +55,16 @@ Cadastrar usuario.
 ```
 
 Pesquisa usuario.
+- Informar o email na url para buscar o usuario.
 - `GET /api/usuarios?email=email@teste.com`
   
 Deleta usuario.
+- Informar o email na url para deletar o usuario.
 - `DELETE /api/usuarios?email=email@teste.com`
 
 Atualiza usuario.
+- Informar o email na url
+- Apenas os campos abaixo são permitidos atualizar.
 - `PUT /api/usuarios?email=email@teste.com`
 ```
 {
@@ -81,12 +85,16 @@ Cadastrar Livro.
 }
 ```
 Pesquisa Livro.
+- Informar o isbn para buscar o livro.
 - `GET /api/livros?isbn=9780132350884`
 
 Deleta Livro.
+- Informar o isbn na url para deletar o livro.
 - `DELETE /api/livros?isbn=9780132350884`
 
 Atualizar Livro.
+- Necessario passar o isbn na url
+- Apenas os campos abaixo são permitidos atualizar.
 - `PUT /api/livros?isbn=9780132350884`
 ```
 {
@@ -97,8 +105,16 @@ Atualizar Livro.
 }
 ```
 Recomendações Livro.
+- Recomenda livros com base na categoria ja emprestada.
 - `POST /api/livros/recomendacao?email=email@teste.com`
 
+Busca livros no Google API Books.
+- Mostra uma lista de livros com o titulo pesquisado.
+- `GET /api/livros/google/buscar?titulo=Java`
+
+Salvar livros do Google API Books no banco PostgreSQL.
+- O pesquisa os livros com base no titulo e salva todos no banco.
+- `POST /api/livros/google/salvar?titulo=Java`
 
 ## 📡Endopoints Livros:
 Cadastrar Emprestimo.
@@ -112,6 +128,8 @@ Cadastrar Emprestimo.
 ```
 
 Atualizar Emprestimo.
+- Informar o id na url.
+- Apenas os campos abaixo são permitidos atualizar.
 - `PUT /api/emprestimos?id=2`
 ```
 {
@@ -167,12 +185,16 @@ PostgreSQL (com banco de dados previamente criado)
 git clone https://github.com/luan-filipin/gestao-de-biblioteca.git
 ```
 
-2. Configure o banco de dados
-No application.properties ou application.yml, ajuste com as suas credenciais:
+2. Criar o banco de dados (biblioteca).
+
+3. Configure o banco de dados no application.properties, ajuste com as suas credenciais:
 ```
 spring.datasource.url=jdbc:postgresql://localhost:5432/biblioteca
 spring.datasource.username=seu_usuario
 spring.datasource.password=sua_senha
 ```
 
-3. Execute a aplicação
+4. Como o Application.properties ja possui essa configuração abaixo ao executar a aplicação as tabelas seram criadas automaticamente.
+```
+spring.jpa.hibernate.ddl-auto=update
+```
