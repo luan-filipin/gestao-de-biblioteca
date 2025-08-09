@@ -44,7 +44,7 @@ Mockito
 Maven
 
 ## 📌 Requisitos
-Java 17+
+Java 21
 
 Maven
 
