@@ -35,6 +35,8 @@ PostgreSQL
 
 Lombok
 
+MapStruct
+
 JUnit 5
 
 Mockito
