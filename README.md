@@ -43,13 +43,6 @@ Mockito
 
 Maven
 
-## 📌 Requisitos
-Java 21
-
-Maven
-
-PostgreSQL (com banco de dados previamente criado)
-
 ## 📡Endopoints Usuario:
 Cadastrar usuario.
 - `POST /api/usuarios`
@@ -160,6 +153,13 @@ CREATE TABLE emprestimos (
 );
 
 ```
+
+## 📌 Requisitos
+Java 21
+
+Maven
+
+PostgreSQL (com banco de dados previamente criado)
 
 ## ⚙️ Como executar o projeto
 1. Clone o repositorio.
