@@ -41,21 +41,20 @@ public class LivroController {
 		LivroDto livro = livroService.criarLivro(dto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(livro);
 	}
-
+	
 	@GetMapping
 	public ResponseEntity<LivroDto> buscarLivroPeloIsbn(
 			@RequestParam @NotBlank(message = "O isbn é obrigatorio!") String isbn) {
 		LivroDto livro = livroService.buscaLivroPeloIsbn(isbn);
 		return ResponseEntity.ok(livro);
 	}
-
+	
 	@DeleteMapping
 	public ResponseEntity<Void> deletarLivroPeloIsbn(
 			@RequestParam @NotBlank(message = "O isbn é obrigatorio!") String isbn) {
 		livroService.deletaLivroPeloIsbn(isbn);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
-
 	@PutMapping
 	public ResponseEntity<LivroDto> atualizaLivroPeloIsbn(
 			@RequestParam @NotBlank(message = "O isbn é obrigatorio!") String isbn,
@@ -63,7 +62,7 @@ public class LivroController {
 		LivroDto livro = livroService.atualizaLivroPeloIsBn(isbn, dto);
 		return ResponseEntity.ok(livro);
 	}
-
+	
 	@GetMapping("/recomendacao")
 	public ResponseEntity<List<LivroDto>> recomendarLivrosPorUsuario(
 			@RequestParam @NotBlank(message = "O email é obrigatorio!") @Email(message = "Email invalido!") String email) {
@@ -76,7 +75,6 @@ public class LivroController {
 	    List<CriarLivroDto> livros = googleBooksService.buscarLivrosPorTitulo(titulo);
 	    return ResponseEntity.ok(livros);
 	}
-
 	@PostMapping("/google/salvar")
 	public ResponseEntity<List<LivroDto>> buscarESalvarLivros(@RequestParam String titulo) {
 	    List<LivroDto> livrosSalvos = googleBooksService.buscarESalvarLivros(titulo);
