@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.api.biblioteca.dto.AtualizarLivroDto;
 import com.api.biblioteca.dto.CriarLivroDto;
 import com.api.biblioteca.dto.response.LivroDto;
+import com.api.biblioteca.service.GoogleBooksService;
 import com.api.biblioteca.service.LivroService;
 import com.api.biblioteca.service.RecomendaService;
 
@@ -34,6 +34,7 @@ public class LivroController {
 
 	private final LivroService livroService;
 	private final RecomendaService recomendaService;
+	private final GoogleBooksService googleBooksService;
 
 	@PostMapping
 	public ResponseEntity<LivroDto> criarLivro(@RequestBody @Valid CriarLivroDto dto) {
@@ -68,5 +69,17 @@ public class LivroController {
 			@RequestParam @NotBlank(message = "O email é obrigatorio!") @Email(message = "Email invalido!") String email) {
 		List<LivroDto> recomendacoes = recomendaService.recomendarLivrosPorUsuario(email);
 		return ResponseEntity.ok(recomendacoes);
+	}
+	
+	@GetMapping("/google/buscar")
+	public ResponseEntity<List<CriarLivroDto>> buscarLivrosPorTitulo(@RequestParam String titulo) {
+	    List<CriarLivroDto> livros = googleBooksService.buscarLivrosPorTitulo(titulo);
+	    return ResponseEntity.ok(livros);
+	}
+
+	@PostMapping("/google/salvar")
+	public ResponseEntity<List<LivroDto>> buscarESalvarLivros(@RequestParam String titulo) {
+	    List<LivroDto> livrosSalvos = googleBooksService.buscarESalvarLivros(titulo);
+	    return ResponseEntity.status(HttpStatus.CREATED).body(livrosSalvos);
 	}
 }
