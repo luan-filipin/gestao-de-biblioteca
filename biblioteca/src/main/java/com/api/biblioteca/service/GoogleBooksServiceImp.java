@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class GoogleBooksServiceImp implements GoogleBooksService {
 
-	private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;  // injetado, não criado aqui
 	private static final String GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes?q=intitle:%s";
 	private final GoogleLivroMapper googleLivroMapper;
 	private final CriarLivroMapper criarLivroMapper;
