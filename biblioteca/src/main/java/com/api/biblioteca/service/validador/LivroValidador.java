@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.api.biblioteca.dto.CriarLivroDto;
 import com.api.biblioteca.entity.Livro;
 import com.api.biblioteca.exception.IdLivroNaoExisteException;
 import com.api.biblioteca.exception.IsbnInexistenteException;
 import com.api.biblioteca.exception.IsbnJaExisteException;
 import com.api.biblioteca.exception.NenhumLivroEncontradoParaRecomendacaoException;
 import com.api.biblioteca.repository.LivroRepository;
+
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,4 +40,19 @@ public class LivroValidador {
 	        throw new NenhumLivroEncontradoParaRecomendacaoException();
 	    }
 	}
+	
+
+    public List<CriarLivroDto> filtrarValidos(List<CriarLivroDto> livros) {
+        return livros.stream()
+                .filter(this::isValido)
+                .toList();
+    }
+
+    private boolean isValido(CriarLivroDto dto) {
+        return dto.titulo() != null && !dto.titulo().isBlank()
+                && dto.autor() != null && !dto.autor().isBlank()
+                && dto.isbn() != null && !dto.isbn().isBlank()
+                && dto.categoria() != null && !dto.categoria().isBlank()
+                && dto.dataPublicacao() != null;
+    }
 }
