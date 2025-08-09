@@ -27,9 +27,9 @@ import com.api.biblioteca.config.GlobalExceptionLivrosHandler;
 import com.api.biblioteca.dto.AtualizarLivroDto;
 import com.api.biblioteca.dto.CriarLivroDto;
 import com.api.biblioteca.dto.response.LivroDto;
+import com.api.biblioteca.service.GoogleBooksService;
 import com.api.biblioteca.service.LivroService;
 import com.api.biblioteca.service.RecomendaService;
-import com.api.biblioteca.service.RecomendaServiceImp;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(LivroController.class)
@@ -39,15 +39,15 @@ class LivroControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
-
 	@Autowired
 	private ObjectMapper objectMapper;
-
 	@MockitoBean
 	private LivroService livroService;
-	
 	@MockitoBean
 	private RecomendaService recomendaService;
+	@MockitoBean
+    private GoogleBooksService googleBooksService;
+
 
 	@DisplayName("POST - Deve criar um livro quando a requisição for valida.")
 	@Test
@@ -270,4 +270,62 @@ class LivroControllerTest {
 		.andExpect(jsonPath("$.erros[0].campo").value(org.hamcrest.Matchers.endsWith("email")))
 		.andExpect(jsonPath("$.erros[0].mensagem").value("O email é obrigatorio!"));
 	}
+	
+	@DisplayName("GET - Deve pesquisa livro pelo titulo com sucesso.")
+	@Test
+	void buscarLivrosPorTituloComSucesso() throws Exception {
+	    String titulo = "Java";
+
+	    List<CriarLivroDto> livros = List.of(
+	        new CriarLivroDto("Java 101", "Autor X", "123", "Programação", LocalDate.of(2020,1,1))
+	    );
+
+	    when(googleBooksService.buscarLivrosPorTitulo(titulo)).thenReturn(livros);
+
+	    mockMvc.perform(get("/api/livros/google/buscar")
+	            .param("titulo", titulo))
+	        .andExpect(status().isOk())
+	        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+	        .andExpect(jsonPath("$[0].titulo").value("Java 101"))
+	        .andExpect(jsonPath("$[0].autor").value("Autor X"))
+		    .andExpect(jsonPath("$[0].isbn").value("123"))
+		    .andExpect(jsonPath("$[0].categoria").value("Programação"));
+	}
+	
+	@DisplayName("GET - Deve retornar BadRequest por nao ter parametro.")
+	@Test
+	void buscarLivrosPorTituloSemParametroTituloDeveRetornarBadRequest() throws Exception {
+	    mockMvc.perform(get("/api/livros/google/buscar"))
+	        .andExpect(status().isBadRequest());
+	}
+	
+	@DisplayName("POST - Deve salvar o livro com sucesso.")
+	@Test
+	void buscarESalvarLivrosComSucesso() throws Exception {
+	    String titulo = "Java";
+
+	    List<LivroDto> livrosSalvos = List.of(
+	        new LivroDto(1L, "Java 101", "Autor X", "123", LocalDate.of(2020,1,1), "Programação")
+	    );
+
+	    when(googleBooksService.buscarESalvarLivros(titulo)).thenReturn(livrosSalvos);
+
+	    mockMvc.perform(post("/api/livros/google/salvar")
+	            .param("titulo", titulo))
+	        .andExpect(status().isCreated())
+	        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+	        .andExpect(jsonPath("$[0].id").value(1))
+	        .andExpect(jsonPath("$[0].titulo").value("Java 101"))
+	        .andExpect(jsonPath("$[0].isbn").value("123"))
+	        .andExpect(jsonPath("$[0].categoria").value("Programação"));
+	}
+
+	@DisplayName("POST - Deve retornar BadRequest por nao ter parametro.")
+	@Test
+	void buscarESalvarLivrosSemParametroTituloDeveRetornarBadRequest() throws Exception {
+	    mockMvc.perform(post("/api/livros/google/salvar"))
+	        .andExpect(status().isBadRequest());
+	}
+
+
 }

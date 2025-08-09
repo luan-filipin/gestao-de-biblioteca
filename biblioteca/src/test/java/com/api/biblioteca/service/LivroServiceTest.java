@@ -353,11 +353,9 @@ class LivroServiceTest {
 			recomendaServiceImp.recomendarLivrosPorUsuario(email);
 		});
 		
-		assertEquals("Nenhum livro encontrado para recomendação.", exception.getMessage());;
+		assertEquals("Nenhum livro encontrado para recomendação.", exception.getMessage());
 		
 		verify(livroMapper, never()).toListDto(any());
 		
 	}
-	
-	
 }
