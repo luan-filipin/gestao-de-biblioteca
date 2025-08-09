@@ -35,18 +35,13 @@ PostgreSQL
 
 Lombok
 
+MapStruct
+
 JUnit 5
 
 Mockito
 
 Maven
-
-## 📌 Requisitos
-Java 17+
-
-Maven
-
-PostgreSQL (com banco de dados previamente criado)
 
 ## 📡Endopoints Usuario:
 Cadastrar usuario.
@@ -101,6 +96,9 @@ Atualizar Livro.
   "dataPublicacao": "2025-08-07"
 }
 ```
+Recomendações Livro.
+- `POST /api/livros/recomendacao?email=email@teste.com`
+
 
 ## 📡Endopoints Livros:
 Cadastrar Emprestimo.
@@ -155,6 +153,13 @@ CREATE TABLE emprestimos (
 );
 
 ```
+
+## 📌 Requisitos
+Java 21
+
+Maven
+
+PostgreSQL (com banco de dados previamente criado)
 
 ## ⚙️ Como executar o projeto
 1. Clone o repositorio.
