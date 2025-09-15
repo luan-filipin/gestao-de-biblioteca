@@ -48,23 +48,38 @@ class LivroServiceTest {
 	@InjectMocks
 	private RecomendaServiceImp recomendaServiceImp;
 	
-	@DisplayName("POST - Deve criar o livro com sucesso")
-	@Test
-	void deveCriarOLivroComSucesso() {
-		
-		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
-
-		CriarLivroDto dtoEntrada = new CriarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação", dataFixa);
-		
+	// Metodos auxiliares para não repetir a criação dos objetos.
+	private CriarLivroDto criarLivroDtoAux() {		
+		return new CriarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação", LocalDate.of(2025, 8, 7));
+	}
+	
+	private AtualizarLivroDto LivroDtoAtualizaAux() {
+		return new AtualizarLivroDto("Clean Code", "Robert C. Martin", "Programação", LocalDate.of(2025, 8, 7));
+	}
+	
+	private Livro criarLivroAux() {	
 		Livro entitySalvo = new Livro();
 		entitySalvo.setId(1L);
 		entitySalvo.setTitulo("Clean Code");
 		entitySalvo.setAutor("Robert C. Martin");
 		entitySalvo.setIsbn("9780132350884");
-		entitySalvo.setDataPublicacao(dataFixa);
+		entitySalvo.setDataPublicacao(LocalDate.of(2025, 8, 7));
 		entitySalvo.setCategoria("Programação");
-		
-		LivroDto dtoEsperado = new LivroDto(1L, "Clean Code", "Robert C. Martin", "9780132350884", dataFixa, "Programação");
+
+		return entitySalvo;
+	}
+	
+	private LivroDto livroDtoEsperadoAux() {
+		return new LivroDto(1L, "Clean Code", "Robert C. Martin", "9780132350884", LocalDate.of(2025, 8, 7), "Programação");
+	}
+	
+	@DisplayName("POST - Deve criar o livro com sucesso")
+	@Test
+	void deveCriarOLivroComSucesso() {
+
+		CriarLivroDto dtoEntrada = criarLivroDtoAux();
+		Livro entitySalvo = criarLivroAux();
+		LivroDto dtoEsperado = livroDtoEsperadoAux();
 		
 		doNothing().when(livroValidador).validaSeOLivroExiste(dtoEntrada.isbn());
 		when(criarLivroMapper.toEntity(dtoEntrada)).thenReturn(entitySalvo);
@@ -90,9 +105,8 @@ class LivroServiceTest {
 	@Test
 	void deveLancarExceptionSeOIsbnForExistente() {
 		
-		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 		String isbn = "9780132350884";
-		CriarLivroDto dtoEntrada = new CriarLivroDto("Clean Code", "Robert C. Martin", "9780132350884", "Programação", dataFixa);
+		CriarLivroDto dtoEntrada = criarLivroDtoAux();
 
 		doThrow(new IsbnJaExisteException()).when(livroValidador).validaSeOLivroExiste(isbn);
 		
@@ -112,18 +126,10 @@ class LivroServiceTest {
 	@Test
 	void deveBuscarLivroPeloIsbnComSucesso() {
 		
-		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 		String isbn = "9780132350884";
-		
-		Livro entity = new Livro();
-		entity.setId(1L);
-		entity.setTitulo("Clean Code");
-		entity.setAutor("Robert C. Martin");
-		entity.setIsbn(isbn);
-		entity.setDataPublicacao(dataFixa);
-		entity.setCategoria("Programação");
-		
-		LivroDto dtoEsperado = new LivroDto(1L, "Clean Code", "Robert C. Martin", isbn, dataFixa, "Programação");
+
+		Livro entity = criarLivroAux();
+		LivroDto dtoEsperado = livroDtoEsperadoAux();
 		
 		when(livroValidador.buscaPorIsbnOuLancaException(isbn)).thenReturn(entity);
 		when(livroMapper.toDto(entity)).thenReturn(dtoEsperado);
@@ -163,16 +169,9 @@ class LivroServiceTest {
 	@Test
 	void deveDeletarLivroPeloIsbnComSucesso() {
 		
-		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 		String isbn = "9780132350884";
 		
-		Livro entity = new Livro();
-		entity.setId(1L);
-		entity.setTitulo("Clean Code");
-		entity.setAutor("Robert C. Martin");
-		entity.setIsbn(isbn);
-		entity.setDataPublicacao(dataFixa);
-		entity.setCategoria("Programação");
+		Livro entity = criarLivroAux();
 		
 		when(livroValidador.buscaPorIsbnOuLancaException(isbn)).thenReturn(entity);
 		doNothing().when(livroRepository).delete(entity);
@@ -204,20 +203,11 @@ class LivroServiceTest {
 	@Test
 	void deveAtualizarLivroPeloIsbnComSucesso() {
 		
-		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 		String isbn = "9780132350884";
 		
-		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("Clean Code", "Robert C. Martin", "Programação", dataFixa);
-		
-		Livro entity = new Livro();
-		entity.setId(1L);
-		entity.setTitulo("Clean Code");
-		entity.setAutor("Robert C. Martin");
-		entity.setIsbn(isbn);
-		entity.setDataPublicacao(dataFixa);
-		entity.setCategoria("Programação");
-		
-		LivroDto dtoEsperado = new LivroDto(1L, "Clean Code", "Robert C. Martin", isbn, dataFixa, "Programação");
+		AtualizarLivroDto dtoEntrada = LivroDtoAtualizaAux();
+		Livro entity = criarLivroAux();
+		LivroDto dtoEsperado = livroDtoEsperadoAux();
 		
 		
 		when(livroValidador.buscaPorIsbnOuLancaException(isbn)).thenReturn(entity);
@@ -243,10 +233,9 @@ class LivroServiceTest {
 	@DisplayName("PUT - Deve lançar exception se o isbn nao existir")
 	@Test
 	void deveLancarExceptionSeOIsbnNaoExistir() {
-		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 		String isbn = "9780132350884";
 		
-		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("Clean Code", "Robert C. Martin", "Programação", dataFixa);
+		AtualizarLivroDto dtoEntrada = LivroDtoAtualizaAux();
 
 		doThrow(new IsbnInexistenteException()).when(livroValidador).buscaPorIsbnOuLancaException(isbn);
 		
@@ -266,10 +255,9 @@ class LivroServiceTest {
 	@Test
 	void deveLancarExceptionSeAIsbnUrlDiferenteDoCorpo() {
 		
-		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 		String isbn = "9780132350884";
 		
-		AtualizarLivroDto dtoEntrada = new AtualizarLivroDto("Clean Code", "Robert C. Martin", "Programação", dataFixa);
+		AtualizarLivroDto dtoEntrada = LivroDtoAtualizaAux();
 		
 		when(livroValidador.buscaPorIsbnOuLancaException(isbn)).thenThrow(new IsbnInexistenteException());
 		
