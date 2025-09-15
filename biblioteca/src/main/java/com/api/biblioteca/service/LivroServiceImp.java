@@ -24,11 +24,11 @@ public class LivroServiceImp implements LivroService{
 
 	@Override
 	public LivroDto criarLivro(CriarLivroDto dto) {
-		livroValidador.validaSeOLivroExiste(dto.isbn());
-		Livro livroSalvo = livroRepository.save(criarLivroMapper.toEntity(dto));
+		livroValidador.validaSeOLivroExiste(dto.isbn());		
+		Livro livroSalvo = livroRepository.save(criarLivroMapper.toEntity(dto));		
 		return livroMapper.toDto(livroSalvo);
 	}
-
+	
 	@Override
 	public LivroDto buscaLivroPeloIsbn(String isbn) {
 		Livro livro = livroValidador.buscaPorIsbnOuLancaException(isbn);

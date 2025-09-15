@@ -12,7 +12,7 @@ public record CriarLivroDto(
 		String autor,
 		@NotBlank(message = "O isbn é obrigatorio!")
 		String isbn,
-		@NotBlank(message = "O categoria é obrigatorio!")
+		@NotBlank(message = "A categoria é obrigatorio!")
 		String categoria,
 		@NotNull(message = "A dataPublicacao é obrigatorio")
 		LocalDate dataPublicacao

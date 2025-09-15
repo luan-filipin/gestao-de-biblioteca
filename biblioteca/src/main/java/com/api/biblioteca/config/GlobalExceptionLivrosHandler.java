@@ -36,7 +36,7 @@ public class GlobalExceptionLivrosHandler {
 				ex.getMessage(), 
 				HttpStatus.NOT_FOUND.value(),
 				request.getRequestURI());
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
 	}
 	
 	@ExceptionHandler(IdLivroNaoExisteException.class)
