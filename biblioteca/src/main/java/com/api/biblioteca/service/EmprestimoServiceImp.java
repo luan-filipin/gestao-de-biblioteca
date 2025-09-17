@@ -15,6 +15,7 @@ import com.api.biblioteca.service.validador.EmprestimoValidador;
 import com.api.biblioteca.service.validador.LivroValidador;
 import com.api.biblioteca.service.validador.UsuarioValidador;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class EmprestimoServiceImp implements EmprestimoService {
 	private final EmprestimoMapper emprestimoMapper;
 	private final EmprestimoValidador emprestimoValidador;
 
+	@Transactional
 	@Override
 	public EmprestimoDto criarEmprestimo(CriarEmprestimoDto dto) {
 		emprestimoValidador.validaSeLivroEstaEmprestado(dto.livroId());
@@ -37,6 +39,7 @@ public class EmprestimoServiceImp implements EmprestimoService {
 		return emprestimoMapper.toDto(salvo);
 	}
 
+	@Transactional
 	@Override
 	public AtualizarEmprestimoRespostaDto atualizarEmprestimoPeloId(Long id, AtualizarEmprestimoDto dto) {
 		Emprestimo emprestimo = emprestimoValidador.buscaIdOuLancaException(id);
