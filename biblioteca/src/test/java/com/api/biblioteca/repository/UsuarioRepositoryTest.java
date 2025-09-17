@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -38,11 +39,9 @@ class UsuarioRepositoryTest {
 		registry.add("spring.datasource.password", postgres::getPassword);
 	}
 	
-	private Usuario criarUsuario(String email) {
-		Usuario usuario = new Usuario();
-		usuario.setNome("nome_teste");
-		usuario.setEmail(email);
-		usuario.setTelefone("99999999");
+	// Metodos auxiliares para não repetir a criação dos objetos
+	private Usuario criarUsuario(String nome, String email, String telefone) {
+		Usuario usuario = new Usuario(nome, email, LocalDateTime.of(2025, 8, 7, 10, 0), telefone);
 		return usuarioRepository.save(usuario);
 	}
 	
@@ -50,7 +49,7 @@ class UsuarioRepositoryTest {
 	@Test
 	void DeveRetornarTrueSeEmailExistir() {
 		
-		criarUsuario("email@teste.com");
+		criarUsuario("nome_teste","email@teste.com","(11) 91234-5678");
 		
 		boolean resultado = usuarioRepository.existsByEmail("email@teste.com");
 		
@@ -61,7 +60,7 @@ class UsuarioRepositoryTest {
 	@Test
 	void deveRetornarFalsoSeEmailNaoExistir() {
 		
-		criarUsuario("email@teste.com");
+		criarUsuario("nome_teste","email@teste.com","(11) 91234-5678");
 		
 		boolean resultado = usuarioRepository.existsByEmail("email@testefalha.com");
 		
@@ -72,7 +71,7 @@ class UsuarioRepositoryTest {
 	@Test
 	void deveRetornarUsuarioPeloEmailComSucesso() {
 		
-		criarUsuario("email@teste.com");
+		criarUsuario("nome_teste","email@teste.com","(11) 91234-5678");
 		
 		Optional<Usuario> resultado = usuarioRepository.findByEmail("email@teste.com");
 		
@@ -85,7 +84,7 @@ class UsuarioRepositoryTest {
 	@Test
 	void deveRetornarVazioSeEmailNaoExistir() {
 		
-		criarUsuario("email@teste.com");
+		criarUsuario("nome_teste","email@teste.com","(11) 91234-5678");
 		
 		Optional<Usuario> resultado = usuarioRepository.findByEmail("email@testeFalha.com");
 		
@@ -97,7 +96,7 @@ class UsuarioRepositoryTest {
 	@Test
 	void deveBuscarUsuarioPeloIdComSucesso() {
 		
-		Usuario usuario = criarUsuario("email@teste.com");
+		Usuario usuario = criarUsuario("nome_teste","email@teste.com","(11) 91234-5678");
 		
 		Optional<Usuario> resultado = usuarioRepository.findById(usuario.getId());
 		
@@ -110,7 +109,7 @@ class UsuarioRepositoryTest {
 	@Test
 	void deveRetornarVazioSeIdNaoExistir() {
 		
-		Usuario usuario = criarUsuario("email@teste.com");
+		Usuario usuario = criarUsuario("nome_teste","email@teste.com","(11) 91234-5678");
 
 		Optional<Usuario> resultado = usuarioRepository.findById(usuario.getId() + 1);
 		

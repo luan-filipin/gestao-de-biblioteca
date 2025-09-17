@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,31 +48,27 @@ class EmprestimoRepositoryTest {
 	@Autowired
 	private LivroRepository livroRepository;
 	
+	// Metodos auxiliares para não repetir a criação dos objetos
+	private Usuario criarUsuario(String nome, String email, String telefone) {
+		Usuario usuario = new Usuario(nome, email, LocalDateTime.of(2025, 8, 7, 10, 0), telefone);
+		return usuarioRepository.save(usuario);
+	}
+	private Livro criarLivroAux(String titulo, String autor, String isbn, String categoria) {	
+		Livro livro = new Livro(titulo, autor, isbn, LocalDate.of(2025, 8, 7), categoria);
+		return livroRepository.save(livro);
+	}
+	private Emprestimo criarEmprestimoAux(Usuario usuario, Livro livro) {
+		Emprestimo emprestimo = new Emprestimo(usuario, livro, LocalDateTime.of(2025, 8, 7, 10, 0), LocalDate.of(2025, 8, 7), true);
+		return emprestimoRepository.save(emprestimo);
+	}
 	
 	@DisplayName("Deve verificar se o livro existe com sucesso.")
 	@Test
 	void deveVerificarSeLivroExisteComSucesso() {
 		
-		Usuario usuario = new Usuario();
-		usuario.setNome("nome_teste");
-		usuario.setEmail("email@teste.com");
-		usuario.setTelefone("99999999");
-		usuarioRepository.save(usuario);
-
-		Livro livro = new Livro();
-		livro.setTitulo("titulo_teste");
-		livro.setAutor("autor_teste");
-		livro.setIsbn("123456789");
-		livro.setDataPublicacao(LocalDate.of(1992, 5, 2));
-		livro.setCategoria("categoria_teste");
-		livroRepository.save(livro);
-		
-		Emprestimo emprestimo = new Emprestimo();
-		emprestimo.setUsuario(usuario);
-		emprestimo.setLivro(livro);
-		emprestimo.setDataDevolucao(LocalDate.now().plusDays(7));
-		emprestimo.setStatus(true);
-		emprestimoRepository.save(emprestimo);		
+		Usuario usuario = criarUsuario("nome_teste","email@teste.com","(11) 91234-5678");
+		Livro livro = criarLivroAux("Clean Code", "Robert C. Martin", "9780132350884", "Programação");
+		criarEmprestimoAux(usuario, livro);	
 		
 		boolean exists = emprestimoRepository.existsByLivroIdAndStatusTrue(livro.getId());
 		
@@ -82,26 +79,9 @@ class EmprestimoRepositoryTest {
 	@Test
 	void deveFalharAoVerificarLivroExistente() {
 		
-		Usuario usuario = new Usuario();
-		usuario.setNome("nome_teste");
-		usuario.setEmail("email@teste.com");
-		usuario.setTelefone("99999999");
-		usuarioRepository.save(usuario);
-
-		Livro livro = new Livro();
-		livro.setTitulo("titulo_teste");
-		livro.setAutor("autor_teste");
-		livro.setIsbn("123456789");
-		livro.setDataPublicacao(LocalDate.of(1992, 5, 2));
-		livro.setCategoria("categoria_teste");
-		livroRepository.save(livro);
-		
-		Emprestimo emprestimo = new Emprestimo();
-		emprestimo.setUsuario(usuario);
-		emprestimo.setLivro(livro);
-		emprestimo.setDataDevolucao(LocalDate.now().plusDays(7));
-		emprestimo.setStatus(true);
-		emprestimoRepository.save(emprestimo);		
+		Usuario usuario = criarUsuario("nome_teste","email@teste.com","(11) 91234-5678");
+		Livro livro = criarLivroAux("Clean Code", "Robert C. Martin", "9780132350884", "Programação");
+		criarEmprestimoAux(usuario, livro);	
 		
 		boolean exists = emprestimoRepository.existsByLivroIdAndStatusTrue(livro.getId() + 1);
 		

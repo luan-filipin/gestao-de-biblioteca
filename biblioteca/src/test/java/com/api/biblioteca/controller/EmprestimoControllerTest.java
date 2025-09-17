@@ -24,8 +24,6 @@ import com.api.biblioteca.dto.AtualizarEmprestimoDto;
 import com.api.biblioteca.dto.CriarEmprestimoDto;
 import com.api.biblioteca.dto.response.AtualizarEmprestimoRespostaDto;
 import com.api.biblioteca.dto.response.EmprestimoDto;
-import com.api.biblioteca.entity.Livro;
-import com.api.biblioteca.entity.Usuario;
 import com.api.biblioteca.service.EmprestimoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -44,31 +42,19 @@ class EmprestimoControllerTest {
 	@MockitoBean
 	private EmprestimoService emprestimoService;
 	
+	private AtualizarEmprestimoDto criarEmprestomoDtoAtualizadoAux(Boolean status) {
+		return new AtualizarEmprestimoDto(LocalDate.of(2025, 8, 7), status);
+	}
+	
 	@DisplayName("POST - Deve criar um emprestimo com sucesso.")
 	@Test
 	void deveCriarEmprestimoComSucesso()throws Exception{
 		
 		LocalDateTime dataEmprestimoFixa = LocalDateTime.of(2025, 8, 7, 10, 0);
-		LocalDate dataFixa = LocalDate.of(2025, 8, 8);
 		
-		CriarEmprestimoDto emprestimoEntrada = new CriarEmprestimoDto(1L, 1L, dataFixa);
-
-		Usuario usuario = new Usuario();
-		usuario.setId(1L);
-		usuario.setNome("Luan Brito");
-		usuario.setEmail("teste@teste.com");
-		usuario.setDataCadastro(dataEmprestimoFixa);
-		usuario.setTelefone("(11) 91234-5678");
+		CriarEmprestimoDto emprestimoEntrada = new CriarEmprestimoDto(1L, 1L, LocalDate.now());
 		
-		Livro livro = new Livro();
-		livro.setId(1L);
-		livro.setTitulo("Clean Code");
-		livro.setAutor("Robert C. Martin");
-		livro.setIsbn("9780132350884");
-		livro.setDataPublicacao(dataFixa);
-		livro.setCategoria("Programação");
-		
-		EmprestimoDto emprestimo = new EmprestimoDto(1L, "Luan Brito", "Clean Code", dataEmprestimoFixa, dataFixa, true);
+		EmprestimoDto emprestimo = new EmprestimoDto(1L, "Luan Brito", "Clean Code", dataEmprestimoFixa, LocalDate.now(), true);
 
 		when(emprestimoService.criarEmprestimo(emprestimoEntrada)).thenReturn(emprestimo);
 		
@@ -99,7 +85,7 @@ class EmprestimoControllerTest {
 		.andExpect(jsonPath("$.status").value(400))
 		.andExpect(jsonPath("$.path").value("/api/emprestimos"))
 		.andExpect(jsonPath("$.timestamp").exists())
-		.andExpect(jsonPath("$.erros[0].campo").value(org.hamcrest.Matchers.endsWith("livroId")))
+		.andExpect(jsonPath("$.erros[0].campo").value("livroId"))
 		.andExpect(jsonPath("$.erros[0].mensagem").value("O ID do livro é obrigatório."));
 
 	}
@@ -112,7 +98,7 @@ class EmprestimoControllerTest {
 		LocalDateTime dataEmprestimoFixa = LocalDateTime.of(2025, 8, 7, 10, 0);
 		Long id = 1L;
 		
-		AtualizarEmprestimoDto emprestimoEntrada = new AtualizarEmprestimoDto(dataFixa, true);
+		AtualizarEmprestimoDto emprestimoEntrada = criarEmprestomoDtoAtualizadoAux(true);
 		AtualizarEmprestimoRespostaDto emprestimoDtoEsperado = new AtualizarEmprestimoRespostaDto(1L, "Luan Brito", "Clean Code", dataEmprestimoFixa, dataFixa, true);
 
 
@@ -135,10 +121,9 @@ class EmprestimoControllerTest {
 	@Test
 	void deveLancarExceptionSeTiverCamposInvalidos() throws Exception {
 
-	    LocalDate dataFixa = LocalDate.of(2025, 8, 7);
 	    Long id = 1L;
 
-	    AtualizarEmprestimoDto emprestimoEntrada = new AtualizarEmprestimoDto(dataFixa, null);
+	    AtualizarEmprestimoDto emprestimoEntrada = criarEmprestomoDtoAtualizadoAux(null);
 
 	    mockMvc.perform(put("/api/emprestimos")
 	            .param("id", String.valueOf(id))

@@ -43,26 +43,30 @@ class UsuarioServiceTest {
 	@InjectMocks
 	private UsuarioServiceImp usuarioServiceImp;
 	
+	// Metodos auxiliares para não repetir a criação dos objetos
+	private Usuario criarUsuarioAux(String nome, String email, String telefone) {
+		return new Usuario(nome, email, LocalDateTime.of(2025, 8, 6, 12, 0), telefone);
+	}
+	
+	private UsuarioDto criarDtoEsperadoAux(Long id, String nome, String email, LocalDateTime dataCadastro, String telefone) {
+		return new UsuarioDto(id, nome, email, dataCadastro, telefone);
+	}
+	
+	private CriarUsuarioDto criarUsuarioDtoAux(String nome, String email, String telefone) {
+		return new CriarUsuarioDto(nome, email, telefone);
+	}
+	
+	private AtualizaUsuarioDto criarUsuarioDtoAtualizadoAux(String nome, String telefone) {
+		return new AtualizaUsuarioDto(nome, telefone);
+	}
+	
 	@DisplayName("POST - Deve criar um usuario com sucesso.")
 	@Test
 	void deveCriarUsuarioComSucesso() {
 
-	    CriarUsuarioDto dto = new CriarUsuarioDto("Luan Brito", "teste@teste.com", "(11) 91234-5678");
-
-	    Usuario entity = new Usuario();
-	    entity.setId(1L); 
-	    entity.setNome(dto.nome());
-	    entity.setEmail(dto.email());
-	    entity.setTelefone(dto.telefone());
-	    entity.setDataCadastro(LocalDateTime.of(2025, 8, 6, 12, 0)); // data simulada
-
-	    UsuarioDto usuarioDtoEsperado = new UsuarioDto(
-	        entity.getId(),
-	        entity.getNome(),
-	        entity.getEmail(),
-	        entity.getDataCadastro(),
-	        entity.getTelefone()
-	    );
+	    CriarUsuarioDto dto = criarUsuarioDtoAux("Luan Brito", "teste@teste.com", "(11) 91234-5678");
+	    Usuario entity = criarUsuarioAux("Luan Brito", "teste@teste.com", "(11) 91234-5678"); 
+	    UsuarioDto usuarioDtoEsperado = criarDtoEsperadoAux(entity.getId(), "Luan Brito", "teste@teste.com", entity.getDataCadastro(), "(11) 91234-5678");
 
 	    when(criarUsuarioMapper.toEntity(dto)).thenReturn(entity);
 	    when(usuarioRepository.save(entity)).thenReturn(entity); // simula o retorno do save
@@ -88,8 +92,7 @@ class UsuarioServiceTest {
 	@Test
 	void deveLancarExceptionAoValidarEmail() {
 		
-		CriarUsuarioDto dto = new CriarUsuarioDto("Luan Brito", "teste@teste.com", "(11) 91234-5678");
-
+		CriarUsuarioDto dto = criarUsuarioDtoAux("Luan Brito", "teste@teste.com", "(11) 91234-5678");
 		
 		doThrow(new EmailJaExisteException()).when(usuarioValidador).validarEmailNaoCadastrado(dto.email());
 		
@@ -110,20 +113,8 @@ class UsuarioServiceTest {
 		
 		String email = "teste@teste.com";
 
-		Usuario usuario = new Usuario();
-		usuario.setId(1L);
-		usuario.setNome("Luan Brito");
-		usuario.setEmail(email);
-		usuario.setTelefone("(11) 91234-5678");
-		usuario.setDataCadastro(LocalDateTime.now());
-
-		UsuarioDto usuarioDtoEsperado = new UsuarioDto(
-		        usuario.getId(),
-		        usuario.getNome(),
-		        usuario.getEmail(),
-		        usuario.getDataCadastro(),
-		        usuario.getTelefone()
-		);		
+		Usuario usuario = criarUsuarioAux("Luan Brito", "teste@teste.com", "(11) 91234-5678");
+		UsuarioDto usuarioDtoEsperado = criarDtoEsperadoAux(usuario.getId(), "Luan Brito", "teste@teste.com", usuario.getDataCadastro(), "(11) 91234-5678");
 
 		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenReturn(usuario);
 		when(usuarioMapper.toUsuarioDto(usuario)).thenReturn(usuarioDtoEsperado);
@@ -145,6 +136,7 @@ class UsuarioServiceTest {
 	@DisplayName("GET - Deve lançar exceção ao não localizar o email")
 	@Test
 	void deveLancarExceptionAoNaoLocalizarOEmail() {
+		
 	    String email = "inexistente@teste.com";
 
 	    when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email))
@@ -165,13 +157,7 @@ class UsuarioServiceTest {
 	void deveDeletarUsuarioPeloEmail() {
 		
 		String email = "teste@teste.com";
-		
-		Usuario usuario = new Usuario();
-		usuario.setId(1L);
-		usuario.setNome("Luan Brito");
-		usuario.setEmail(email);
-	    usuario.setTelefone("(11) 91234-5678");
-	    usuario.setDataCadastro(LocalDateTime.now());
+		Usuario usuario = criarUsuarioAux("Luan Brito", "teste@teste.com", "(11) 91234-5678");
 	    
 		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenReturn(usuario);
 	    
@@ -203,16 +189,9 @@ class UsuarioServiceTest {
 	void deveAtualizarUsuarioComSucesso() {
 		
 		String email = "teste@teste.com";
-		AtualizaUsuarioDto dto = new AtualizaUsuarioDto("Luan Brito", "(11) 91234-5678");
-
-		Usuario usuarioExistente = new Usuario();
-		usuarioExistente.setId(1L);
-		usuarioExistente.setNome("Nome antigo");
-		usuarioExistente.setEmail(email);
-		usuarioExistente.setTelefone("(11) 91234-5678");
-		usuarioExistente.setDataCadastro(LocalDateTime.now());
-
-		UsuarioDto dtoEsperado = new UsuarioDto(1L, "Luan Brito", "teste@teste.com", LocalDateTime.now(), "(11) 91234-5678");
+		AtualizaUsuarioDto dto = criarUsuarioDtoAtualizadoAux("Luan Brito", "(11) 91234-5678");
+		Usuario usuarioExistente = criarUsuarioAux("Nome Antigo", "teste@teste.com", "(11) 91234-5678");
+		UsuarioDto dtoEsperado = criarDtoEsperadoAux(1L, "Luan Brito", "teste@teste.com", LocalDateTime.now(), "(11) 91234-5678");
 
 		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenReturn(usuarioExistente);
 		doNothing().when(usuarioMapper).atualizaDto(dto, usuarioExistente);
@@ -240,15 +219,7 @@ class UsuarioServiceTest {
 	void deveLancarExceptionQuandoEmailDaUrlDiferenteDoCorpo() {
 
 	    String email = "";
-
-	    AtualizaUsuarioDto dto = new AtualizaUsuarioDto("Luan Brito", "(11) 91234-5678");
-
-	    Usuario usuarioExistente = new Usuario();
-	    usuarioExistente.setId(1L);
-	    usuarioExistente.setNome("Nome Antigo");
-	    usuarioExistente.setEmail(email);
-	    usuarioExistente.setTelefone("(11) 90000-0000");
-	    usuarioExistente.setDataCadastro(LocalDateTime.now());
+	    AtualizaUsuarioDto dto = criarUsuarioDtoAtualizadoAux("Luan Brito", "(11) 91234-5678");
 
 		when(usuarioValidador.buscarPorEmailOuLancarEmailInexistente(email)).thenThrow(new EmailInexistenteException());
 

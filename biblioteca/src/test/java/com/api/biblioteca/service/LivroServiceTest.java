@@ -57,14 +57,14 @@ class LivroServiceTest {
 		return new AtualizarLivroDto("Clean Code", "Robert C. Martin", "Programação", LocalDate.of(2025, 8, 7));
 	}
 	
-	private Livro criarLivroAux() {	
+	private Livro criarLivroAux(Long id, String titulo, String autor, String isbn, String categoria) {	
 		Livro entitySalvo = new Livro();
-		entitySalvo.setId(1L);
-		entitySalvo.setTitulo("Clean Code");
-		entitySalvo.setAutor("Robert C. Martin");
-		entitySalvo.setIsbn("9780132350884");
+		entitySalvo.setId(id);
+		entitySalvo.setTitulo(titulo);
+		entitySalvo.setAutor(autor);
+		entitySalvo.setIsbn(isbn);
 		entitySalvo.setDataPublicacao(LocalDate.of(2025, 8, 7));
-		entitySalvo.setCategoria("Programação");
+		entitySalvo.setCategoria(categoria);
 
 		return entitySalvo;
 	}
@@ -78,7 +78,7 @@ class LivroServiceTest {
 	void deveCriarOLivroComSucesso() {
 
 		CriarLivroDto dtoEntrada = criarLivroDtoAux();
-		Livro entitySalvo = criarLivroAux();
+		Livro entitySalvo = criarLivroAux(1L, "Clean Code", "Robert C. Martin", "9780132350884", "Programação");
 		LivroDto dtoEsperado = livroDtoEsperadoAux();
 		
 		doNothing().when(livroValidador).validaSeOLivroExiste(dtoEntrada.isbn());
@@ -128,7 +128,7 @@ class LivroServiceTest {
 		
 		String isbn = "9780132350884";
 
-		Livro entity = criarLivroAux();
+		Livro entity = criarLivroAux(1L, "Clean Code", "Robert C. Martin", "9780132350884", "Programação");
 		LivroDto dtoEsperado = livroDtoEsperadoAux();
 		
 		when(livroValidador.buscaPorIsbnOuLancaException(isbn)).thenReturn(entity);
@@ -171,7 +171,7 @@ class LivroServiceTest {
 		
 		String isbn = "9780132350884";
 		
-		Livro entity = criarLivroAux();
+		Livro entity = criarLivroAux(1L, "Clean Code", "Robert C. Martin", "9780132350884", "Programação");
 		
 		when(livroValidador.buscaPorIsbnOuLancaException(isbn)).thenReturn(entity);
 		doNothing().when(livroRepository).delete(entity);
@@ -206,7 +206,7 @@ class LivroServiceTest {
 		String isbn = "9780132350884";
 		
 		AtualizarLivroDto dtoEntrada = LivroDtoAtualizaAux();
-		Livro entity = criarLivroAux();
+		Livro entity = criarLivroAux(1L, "Clean Code", "Robert C. Martin", "9780132350884", "Programação");
 		LivroDto dtoEsperado = livroDtoEsperadoAux();
 		
 		
@@ -281,25 +281,9 @@ class LivroServiceTest {
 		
 		LivroDto dto1 = new LivroDto(1L, "Clean Code", "Robert C. Martin", "9780132350884", dataFixa, "Programação");
 		LivroDto dto2 = new LivroDto(2L, "Desenvolvimento de APIs REST com Spring Boot", "João da Silva", "9788575227992", dataFixa, "Desenvolvimento Web");
-
 		List<LivroDto> livrosDto = List.of(dto1, dto2);
-		
-		Livro entity1 = new Livro();
-		entity1.setId(1L);
-		entity1.setTitulo("Clean Code");
-		entity1.setAutor("Robert C. Martin");
-		entity1.setIsbn("9780132350884");
-		entity1.setDataPublicacao(dataFixa);
-		entity1.setCategoria("Programação");
-		
-		
-		Livro entity2 = new Livro();
-		entity2.setId(2L);
-		entity2.setTitulo("Desenvolvimento de APIs REST com Spring Boot");
-		entity2.setAutor("João da Silva");
-		entity2.setIsbn("9788575227992");
-		entity2.setDataPublicacao(dataFixa);
-		entity2.setCategoria("Desenvolvimento Web");
+		Livro entity1 = criarLivroAux(1L, "Clean Code", "Robert C. Martin", "9780132350884", "Programação");;		
+		Livro entity2 = criarLivroAux(2L, "Desenvolvimento de APIs REST com Spring Boot", "João da Silva", "9788575227992", "Desenvolvimento Web");;
 		
 		List<Livro> livrosEntity = List.of(entity1, entity2);
 		

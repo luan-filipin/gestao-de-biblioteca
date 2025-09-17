@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,7 +52,7 @@ class LivroRepositoryTest {
 	}
 	
 	// Metodos auxiliares para não repetir a criação dos objetos.
-	private Livro criarLivro(String titulo, String isbn) {
+	private Livro criarLivroAux(String titulo, String isbn) {
 		Livro livro = new Livro();
 		livro.setTitulo(titulo);
 		livro.setAutor("autor_teste");
@@ -60,20 +61,13 @@ class LivroRepositoryTest {
 		livro.setCategoria("categoria_teste");
 		return livroRepository.save(livro);
 	}
-	private Usuario criarUsuario() {
-		Usuario usuario = new Usuario();
-		usuario.setNome("nome_teste");
-		usuario.setEmail("email@teste.com");
-		usuario.setTelefone("99999999");
+	private Usuario criarUsuarioAux(String nome, String email, String telefone) {
+		Usuario usuario = new Usuario(nome, email, LocalDateTime.of(2025, 8, 7, 10, 0), telefone);
 		return usuarioRepository.save(usuario);
 	}
 
-	private Emprestimo criarEmprestimo(Usuario usuario, Livro livro) {
-		Emprestimo emprestimo = new Emprestimo();
-		emprestimo.setUsuario(usuario);
-		emprestimo.setLivro(livro);
-		emprestimo.setDataDevolucao(LocalDate.now().plusDays(7));
-		emprestimo.setStatus(true);
+	private Emprestimo criarEmprestimoAux(Usuario usuario, Livro livro) {
+		Emprestimo emprestimo = new Emprestimo(usuario, livro, LocalDateTime.of(2025, 8, 7, 10, 0), LocalDate.now().plusDays(7), true);
 		return emprestimoRepository.save(emprestimo);
 	}
 
@@ -81,7 +75,7 @@ class LivroRepositoryTest {
 	@Test
 	void deveVerificarSeIsbnExisteComSucesso() {
 
-		criarLivro("titulo_teste", "123456");
+		criarLivroAux("titulo_teste", "123456");
 
 		boolean exists = livroRepository.existsByIsbn("123456");
 
@@ -92,7 +86,7 @@ class LivroRepositoryTest {
 	@Test
 	void deveRetornarFalseQuandoIsbnNaoExiste() {
 
-		criarLivro("titulo_teste", "123456");
+		criarLivroAux("titulo_teste", "123456");
 
 		boolean exists = livroRepository.existsByIsbn("123456" + 1);
 
@@ -103,7 +97,7 @@ class LivroRepositoryTest {
 	@Test
 	void deveBuscarLivroPeloIsbnComSucesso() {
 
-		criarLivro("titulo_teste", "123456");
+		criarLivroAux("titulo_teste", "123456");
 
 		Optional<Livro> resultado = livroRepository.findByIsbn("123456");
 
@@ -116,7 +110,7 @@ class LivroRepositoryTest {
 	@Test
 	void deveRetornarVazioQuandoIsbnNaoExiste() {
 
-		criarLivro("titulo_teste", "123456");
+		criarLivroAux("titulo_teste", "123456");
 
 		Optional<Livro> resultado = livroRepository.findByIsbn("123456" + 1);
 
@@ -128,7 +122,7 @@ class LivroRepositoryTest {
 	@Test
 	void deveBuscarLivroPeloIdComSucesso() {
 
-		Livro livro = criarLivro("titulo_teste", "123456");
+		Livro livro = criarLivroAux("titulo_teste", "123456");
 
 		Optional<Livro> resultado = livroRepository.findById(livro.getId());
 
@@ -141,7 +135,7 @@ class LivroRepositoryTest {
 	@Test
 	void deveRetornarVazioQuandoIdNaoExiste() {
 
-		Livro livro = criarLivro("titulo_teste", "123456");
+		Livro livro = criarLivroAux("titulo_teste", "123456");
 
 		Optional<Livro> resultado = livroRepository.findById(livro.getId() + 1);
 
@@ -152,11 +146,11 @@ class LivroRepositoryTest {
 	@Test
 	void deveBuscarLivroQueUsuarioAindaNaoLeu() {
 
-		Usuario usuario = criarUsuario();
-		Livro cleanCode = criarLivro("titulo_teste_cleanCode", "123456");
-		criarLivro("titulo_teste_iaProgramer", "123457");
+		Usuario usuario = criarUsuarioAux("nome_teste", "email@teste.com", "(11) 91234-5678");
+		Livro cleanCode = criarLivroAux("titulo_teste_cleanCode", "123456");
+		criarLivroAux("titulo_teste_iaProgramer", "123457");
 
-		criarEmprestimo(usuario, cleanCode);
+		criarEmprestimoAux(usuario, cleanCode);
 
 		List<Livro> resultado = livroRepository.recomendarLivrosPorCategoriaQueUsuarioAindaNaoLeu("email@teste.com");
 
@@ -168,9 +162,9 @@ class LivroRepositoryTest {
 	@Test
 	void deveRetornarListaVaziaQuandoUsuarioJaLeuTodosDaCategoria() {
 
-		Usuario usuario = criarUsuario();
-		Livro cleanCode = criarLivro("titulo_teste_cleanCode", "123456");
-		criarEmprestimo(usuario, cleanCode);
+		Usuario usuario = criarUsuarioAux("nome_teste", "email@teste.com", "(11) 91234-5678");
+		Livro cleanCode = criarLivroAux("titulo_teste_cleanCode", "123456");
+		criarEmprestimoAux(usuario, cleanCode);
 
 		List<Livro> resultado = livroRepository.recomendarLivrosPorCategoriaQueUsuarioAindaNaoLeu("email@teste.com");
 

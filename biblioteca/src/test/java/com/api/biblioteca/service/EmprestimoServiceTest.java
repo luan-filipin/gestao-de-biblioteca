@@ -58,35 +58,33 @@ class EmprestimoServiceTest {
 	@InjectMocks
 	private EmprestimoServiceImp emprestimoServiceImp;
 	
+	// Metodos auxiliares para não repetir a criação dos objetos
+	private Usuario criarUsuarioAux(String nome, String email, String telefone) {
+		return new Usuario(nome, email, LocalDateTime.of(2025, 8, 7, 10, 0), telefone);
+	}
+	
+	private Livro criarLivroAux(String titulo, String autor, String isbn, String categoria) {	
+		return new Livro(titulo, autor, isbn, LocalDate.of(2025, 8, 7), categoria);
+	}
+	
+	private Emprestimo criarEmprestimoAux(Usuario usuario, Livro livro) {
+		return new Emprestimo(usuario, livro, LocalDateTime.of(2025, 8, 7, 10, 0), LocalDate.of(2025, 8, 7), true);
+	}
+	
+	private CriarEmprestimoDto criarEmprestimoDtoAux(Long idLivro, Long idUsuario) {
+		return new CriarEmprestimoDto(idLivro, idUsuario, LocalDate.of(2025, 8, 7));
+	}
+	
 	@DisplayName("POST - Deve criar um emprestimo com sucesso")
 	@Test
 	void deveCriarEmprestimoComSucesso() {
+		
 		LocalDateTime dataEmprestimoFixa = LocalDateTime.of(2025, 8, 7, 10, 0);
 		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
-		
-		CriarEmprestimoDto emprestimoEntrada = new CriarEmprestimoDto(1L, 1L, dataFixa);
-		
-		Usuario usuario = new Usuario();
-		usuario.setId(1L);
-		usuario.setNome("Luan Brito");
-		usuario.setEmail("teste@teste.com");
-		usuario.setDataCadastro(dataEmprestimoFixa);
-		usuario.setTelefone("(11) 91234-5678");
-		
-		Livro livro = new Livro();
-		livro.setId(1L);
-		livro.setTitulo("Clean Code");
-		livro.setAutor("Robert C. Martin");
-		livro.setIsbn("9780132350884");
-		livro.setDataPublicacao(dataFixa);
-		livro.setCategoria("Programação");
-		
-		Emprestimo emprestimo = new Emprestimo();
-		emprestimo.setId(1L);
-		emprestimo.setUsuario(usuario);
-		emprestimo.setLivro(livro);
-		emprestimo.setDataEmprestimo(dataEmprestimoFixa);
-		emprestimo.setDataDevolucao(dataFixa);
+		CriarEmprestimoDto emprestimoEntrada = criarEmprestimoDtoAux(1L, 1L);
+		Usuario usuario = criarUsuarioAux("Luan Brito", "teste@teste.com", "(11) 91234-5678");
+		Livro livro = criarLivroAux("Clean Code", "Robert C. Martin", "9780132350884", "Programação");
+		Emprestimo emprestimo = criarEmprestimoAux(usuario, livro);
 		
 		EmprestimoDto emprestimoDtoEsperado = new EmprestimoDto(1L, "Luan Brito", "Clean Code", dataEmprestimoFixa, dataFixa, true);
 		
@@ -119,8 +117,7 @@ class EmprestimoServiceTest {
 	@Test
 	void deveLancarExceptionSeLivroEstiverEmprestado() {
 		
-		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
-		CriarEmprestimoDto emprestimoEntrada = new CriarEmprestimoDto(1L, 1L, dataFixa);
+		CriarEmprestimoDto emprestimoEntrada = criarEmprestimoDtoAux(1L, 1L);
 		
 		doThrow(new LivroIndisponivelException()).when(emprestimoValidador).validaSeLivroEstaEmprestado(emprestimoEntrada.livroId());
 		
@@ -142,16 +139,7 @@ class EmprestimoServiceTest {
 	@Test
 	void deveLancarExceptionSeUsuarioNaoExistir() {
 		
-		LocalDateTime dataEmprestimoFixa = LocalDateTime.of(2025, 8, 7, 10, 0);
-		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
-		CriarEmprestimoDto emprestimoEntrada = new CriarEmprestimoDto(1L, 1L, dataFixa);
-		
-		Usuario usuario = new Usuario();
-		usuario.setId(1L);
-		usuario.setNome("Luan Brito");
-		usuario.setEmail("teste@teste.com");
-		usuario.setDataCadastro(dataEmprestimoFixa);
-		usuario.setTelefone("(11) 91234-5678");
+		CriarEmprestimoDto emprestimoEntrada = criarEmprestimoDtoAux(1L, 1L);		
 		
 		doNothing().when(emprestimoValidador).validaSeLivroEstaEmprestado(emprestimoEntrada.livroId());
 		
@@ -173,25 +161,8 @@ class EmprestimoServiceTest {
 	@Test
 	void deveLancarExceptionSeLivroNaoExistir() {
 		
-		LocalDateTime dataEmprestimoFixa = LocalDateTime.of(2025, 8, 7, 10, 0);
-		LocalDate dataFixa = LocalDate.of(2025, 8, 7);
-		
-		CriarEmprestimoDto emprestimoEntrada = new CriarEmprestimoDto(1L, 1L, dataFixa);
-		
-		Usuario usuario = new Usuario();
-		usuario.setId(1L);
-		usuario.setNome("Luan Brito");
-		usuario.setEmail("teste@teste.com");
-		usuario.setDataCadastro(dataEmprestimoFixa);
-		usuario.setTelefone("(11) 91234-5678");
-		
-		Livro livro = new Livro();
-		livro.setId(1L);
-		livro.setTitulo("Clean Code");
-		livro.setAutor("Robert C. Martin");
-		livro.setIsbn("9780132350884");
-		livro.setDataPublicacao(dataFixa);
-		livro.setCategoria("Programação");
+		CriarEmprestimoDto emprestimoEntrada = criarEmprestimoDtoAux(1L, 1L);
+		Usuario usuario = criarUsuarioAux("Luan Brito", "teste@teste.com", "(11) 91234-5678");		
 		
 		doNothing().when(emprestimoValidador).validaSeLivroEstaEmprestado(emprestimoEntrada.livroId());
 		when(usuarioValidador.validaSeIDDoUsuarioExiste(emprestimoEntrada.usuarioId())).thenReturn(usuario);
@@ -217,28 +188,9 @@ class EmprestimoServiceTest {
 		Long id = 1L;
 		
 		AtualizarEmprestimoDto emprestimoEntrada = new AtualizarEmprestimoDto(dataFixa, true);
-		
-		Usuario usuario = new Usuario();
-		usuario.setId(1L);
-		usuario.setNome("Luan Brito");
-		usuario.setEmail("teste@teste.com");
-		usuario.setDataCadastro(dataEmprestimoFixa);
-		usuario.setTelefone("(11) 91234-5678");
-		
-		Livro livro = new Livro();
-		livro.setId(1L);
-		livro.setTitulo("Clean Code");
-		livro.setAutor("Robert C. Martin");
-		livro.setIsbn("9780132350884");
-		livro.setDataPublicacao(dataFixa);
-		livro.setCategoria("Programação");
-		
-		Emprestimo emprestimo = new Emprestimo();
-		emprestimo.setId(1L);
-		emprestimo.setUsuario(usuario);
-		emprestimo.setLivro(livro);
-		emprestimo.setDataEmprestimo(dataEmprestimoFixa);
-		emprestimo.setDataDevolucao(dataFixa);
+		Usuario usuario = criarUsuarioAux("Luan Brito", "teste@teste.com", "(11) 91234-5678");
+		Livro livro = criarLivroAux("Clean Code", "Robert C. Martin", "9780132350884", "Programação");
+		Emprestimo emprestimo = criarEmprestimoAux(usuario, livro);
 		
 		AtualizarEmprestimoRespostaDto emprestimoDtoEsperado = new AtualizarEmprestimoRespostaDto(1L, "Luan Brito", "Clean Code", dataEmprestimoFixa, dataFixa, true);
 
