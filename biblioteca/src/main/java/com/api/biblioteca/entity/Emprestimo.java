@@ -19,7 +19,19 @@ import lombok.Data;
 @Entity
 @Table(name = "emprestimos")
 public class Emprestimo {
+
+	 
 	
+	public Emprestimo(Usuario usuario, Livro livro, LocalDateTime dataEmprestimo, LocalDate dataDevolucao,
+			boolean status) {
+		super();
+		this.usuario = usuario;
+		this.livro = livro;
+		this.dataEmprestimo = dataEmprestimo;
+		this.dataDevolucao = dataDevolucao;
+		this.status = status;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;

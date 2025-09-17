@@ -20,7 +20,16 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "livros")
 public class Livro {
-	
+
+	public Livro(String titulo, String autor, String isbn, LocalDate dataPublicacao, String categoria) {
+		super();
+		this.titulo = titulo;
+		this.autor = autor;
+		this.isbn = isbn;
+		this.dataPublicacao = dataPublicacao;
+		this.categoria = categoria;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;

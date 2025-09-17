@@ -20,6 +20,14 @@ import lombok.Data;
 @Table(name = "usuarios")
 public class Usuario {
 
+	public Usuario(String nome, String email, LocalDateTime dataCadastro, String telefone) {
+		super();
+		this.nome = nome;
+		this.email = email;
+		this.dataCadastro = dataCadastro;
+		this.telefone = telefone;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
