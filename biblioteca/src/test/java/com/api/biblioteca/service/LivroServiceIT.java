@@ -65,7 +65,7 @@ class LivroServiceIT {
 		return new AtualizarLivroDto("Desenvolvimento de APIs REST com Spring Boot", "João da Silva", "Desenvolvimento Web", LocalDate.of(2025, 8, 7));
 	}
     
-    @DisplayName("Deve criar livro pelo ISBN com sucesso")
+    @DisplayName("Deve criar livro com sucesso")
 	@Test
 	void deveCriarEBuscarLivroComSucesso() {
     	
